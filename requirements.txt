@@ -1,0 +1,5 @@
+# App de escritorio: UART + Bluetooth (Python)
+# Python 3.8+
+
+pyserial>=3.5
+bleak>=0.21.0
