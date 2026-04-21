@@ -32,6 +32,7 @@ except Exception:  # pragma: no cover - entorno sin pycryptodome
 from serial_handler import SerialHandler, list_ports
 from ble_handler import BLEHandler
 
+APP_VERSION = "v1.4.37"
 
 def _load_poppins():
     """Register Poppins font files so Tkinter can use them."""
@@ -1209,7 +1210,7 @@ class DeviceBridgeApp:
         tk.Label(title_frame, text="Device Bridge", font=("Poppins", 14),
                  fg="#94a3b8", bg=HEADER_BG).pack(anchor=tk.W)
 
-        tk.Label(header, text="v1.0", font=("Poppins", 9),
+        tk.Label(header, text=APP_VERSION, font=("Poppins", 9),
                  fg="#475569", bg=HEADER_BG).pack(side=tk.RIGHT, padx=(0, 20), pady=12)
 
         tk.Frame(self.root, bg="#2563eb", height=3).pack(fill=tk.X)
