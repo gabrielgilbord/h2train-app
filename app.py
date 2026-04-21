@@ -736,9 +736,176 @@ class DeviceBridgeApp:
 
         self._setup_style()
         self._build_ui()
+        self._apply_env_overrides()
         self._start_command_api_server()
         self._process_queue()
         self._refresh_uart_plots()
+
+    def _apply_env_overrides(self):
+        """
+        Permite configurar parámetros clave vía variables de entorno para
+        automatización/operación remota (p.ej. desde Pi-Dashboard + pi-mqtt-agent).
+
+        Keys soportadas (prefijo H2T_):
+          - UART RAW17:
+              H2T_UART_RAW17_ENDIAN = big|little
+              H2T_UART_RAW17_SIGNED_INT24 = 0|1|true|false
+          - TD8-ECG Keys / pipeline:
+              H2T_TD8_PIPELINE = "RNS+HKDF (actual)" | "Acumulativo 11 bits/muestra"
+              H2T_TD8_ECG_SOURCE = "ECG 3bx en vivo" | "ECG sintético (función)"
+              H2T_TD8_ENTROPY_THRESHOLD = float (0..0.99)
+              H2T_TD8_INVALID_POLICY = "Descartar no válidas" | "Guardar para recombinar"
+              H2T_TD8_RECOMBINE_STRATEGY = "Mitad + mitad" | "Alternar bits" | "XOR + SHA256"
+              H2T_TD8_MAX_INVALID_POOL = int
+              H2T_TD8_KEEP_TAIL_BITS = 0|1|true|false
+              H2T_TD8_ANALYSIS_WINDOW_SAMPLES = int
+              H2T_TD8_SCAN_MODE = "No solapado (128b)" | "Desplazamiento 11b" | "Desplazamiento 1b (máximo)"
+              H2T_TD8_KEY_128_HEX = 32 bytes hex (sin 0x, 32 chars) o vacío
+              H2T_TD8_WINDOW_LEN = int (tamaño ventana para flujo por ventanas)
+              H2T_TD8_AUTO_EVERY_2S = 0|1|true|false
+        """
+
+        def _env_str(key: str) -> Optional[str]:
+            v = os.environ.get(key)
+            if v is None:
+                return None
+            v = str(v).strip()
+            return v if v != "" else ""
+
+        def _env_bool(key: str) -> Optional[bool]:
+            v = _env_str(key)
+            if v is None:
+                return None
+            vv = v.lower()
+            if vv in ("1", "true", "yes", "y", "on"):
+                return True
+            if vv in ("0", "false", "no", "n", "off"):
+                return False
+            return None
+
+        def _env_int(key: str) -> Optional[int]:
+            v = _env_str(key)
+            if v is None or v == "":
+                return None
+            try:
+                return int(v)
+            except Exception:
+                return None
+
+        def _env_float(key: str) -> Optional[float]:
+            v = _env_str(key)
+            if v is None or v == "":
+                return None
+            try:
+                return float(v)
+            except Exception:
+                return None
+
+        # --- UART RAW17
+        bo = _env_str("H2T_UART_RAW17_ENDIAN")
+        if bo in ("big", "little") and hasattr(self, "uart_raw17_bo_var"):
+            try:
+                self.uart_raw17_bo_var.set(bo)
+            except Exception:
+                pass
+        sgn = _env_bool("H2T_UART_RAW17_SIGNED_INT24")
+        if sgn is not None and hasattr(self, "uart_raw17_signed_var"):
+            try:
+                self.uart_raw17_signed_var.set(bool(sgn))
+            except Exception:
+                pass
+        # Reaplica configuración del parser si la UI ya existe.
+        if hasattr(self, "_on_uart_parser_changed"):
+            try:
+                self._on_uart_parser_changed()
+            except Exception:
+                pass
+
+        # --- TD8-ECG Keys
+        pipe = _env_str("H2T_TD8_PIPELINE")
+        if pipe is not None and hasattr(self, "key_pipeline_var"):
+            try:
+                self.key_pipeline_var.set(pipe)
+            except Exception:
+                pass
+
+        src = _env_str("H2T_TD8_ECG_SOURCE")
+        if src is not None and hasattr(self, "ecg_source_var"):
+            try:
+                self.ecg_source_var.set(src)
+            except Exception:
+                pass
+
+        thr = _env_float("H2T_TD8_ENTROPY_THRESHOLD")
+        if thr is not None and hasattr(self, "key_entropy_threshold_var"):
+            try:
+                self.key_entropy_threshold_var.set(max(0.0, min(0.99, float(thr))))
+            except Exception:
+                pass
+
+        inv = _env_str("H2T_TD8_INVALID_POLICY")
+        if inv is not None and hasattr(self, "invalid_policy_var"):
+            try:
+                self.invalid_policy_var.set(inv)
+            except Exception:
+                pass
+
+        rec = _env_str("H2T_TD8_RECOMBINE_STRATEGY")
+        if rec is not None and hasattr(self, "recombine_strategy_var"):
+            try:
+                self.recombine_strategy_var.set(rec)
+            except Exception:
+                pass
+
+        mp = _env_int("H2T_TD8_MAX_INVALID_POOL")
+        if mp is not None and hasattr(self, "max_invalid_pool_var"):
+            try:
+                self.max_invalid_pool_var.set(int(mp))
+            except Exception:
+                pass
+
+        kt = _env_bool("H2T_TD8_KEEP_TAIL_BITS")
+        if kt is not None and hasattr(self, "keep_tail_bits_var"):
+            try:
+                self.keep_tail_bits_var.set(bool(kt))
+            except Exception:
+                pass
+
+        aw = _env_int("H2T_TD8_ANALYSIS_WINDOW_SAMPLES")
+        if aw is not None and hasattr(self, "analysis_window_var"):
+            try:
+                self.analysis_window_var.set(int(aw))
+            except Exception:
+                pass
+
+        sm = _env_str("H2T_TD8_SCAN_MODE")
+        if sm is not None and hasattr(self, "analysis_scan_mode_var"):
+            try:
+                self.analysis_scan_mode_var.set(sm)
+            except Exception:
+                pass
+
+        khex = _env_str("H2T_TD8_KEY_128_HEX")
+        if khex is not None and hasattr(self, "key_hex_var"):
+            try:
+                self.key_hex_var.set(khex.strip())
+            except Exception:
+                pass
+
+        wl = _env_int("H2T_TD8_WINDOW_LEN")
+        if wl is not None and hasattr(self, "window_len_var"):
+            try:
+                self.window_len_var.set(int(wl))
+            except Exception:
+                pass
+
+        af = _env_bool("H2T_TD8_AUTO_EVERY_2S")
+        if af is not None and hasattr(self, "auto_flow_var"):
+            try:
+                self.auto_flow_var.set(bool(af))
+                self._on_auto_flow_changed()
+            except Exception:
+                pass
 
     def _invoke_on_ui_thread(self, fn, timeout: float = 15.0):
         done = threading.Event()
