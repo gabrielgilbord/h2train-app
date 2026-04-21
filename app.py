@@ -72,7 +72,16 @@ def _load_env_file_into_process(path: str, only_prefix: str = "H2T_") -> None:
                 injected.append(k)
         if injected:
             try:
-                print(f"[h2train-app] loaded {len(injected)} vars from {path}: {', '.join(injected[:8])}{'...' if len(injected) > 8 else ''}")
+                print(
+                    f"[h2train-app] loaded {len(injected)} vars from {path}: {', '.join(injected[:8])}{'...' if len(injected) > 8 else ''}",
+                    flush=True,
+                )
+                # Also dump to a temp file for headless debugging.
+                try:
+                    dump = {k: os.environ.get(k, "") for k in sorted(os.environ.keys()) if k.startswith(only_prefix)}
+                    Path("/tmp/h2train-app-h2t-env.json").write_text(json.dumps(dump, ensure_ascii=False, indent=2), encoding="utf-8")
+                except Exception:
+                    pass
             except Exception:
                 pass
     except Exception:
