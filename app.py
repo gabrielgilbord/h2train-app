@@ -34,6 +34,41 @@ from ble_handler import BLEHandler
 
 APP_VERSION = "v1.4.37"
 
+def _load_env_file_into_process(path: str, only_prefix: str = "H2T_") -> None:
+    """
+    Carga un env file tipo systemd/dotenv (KEY=VALUE por línea) en os.environ.
+    Solo inyecta claves que empiecen por `only_prefix` y que aún no existan.
+    """
+    try:
+        if not path:
+            return
+        if not os.path.exists(path):
+            return
+        with open(path, "r", encoding="utf-8") as f:
+            for raw in f.read().splitlines():
+                line = raw.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if "=" not in line:
+                    continue
+                k, v = line.split("=", 1)
+                k = k.strip()
+                v = v.strip()
+                if not k or not k.startswith(only_prefix):
+                    continue
+                if k in os.environ:
+                    continue
+                # systemd EnvironmentFile permite comillas; soportamos lo básico.
+                if (len(v) >= 2) and ((v[0] == v[-1]) and v[0] in ("\"", "'")):
+                    v = v[1:-1]
+                os.environ[k] = v
+    except Exception:
+        # No romper la app si el env file está corrupto.
+        return
+
+# Si systemd --user no inyecta EnvironmentFile, leemos nosotros.
+_load_env_file_into_process(os.environ.get("H2T_ENV_FILE", "/etc/h2train-app.env"))
+
 def _load_poppins():
     """Register Poppins font files so Tkinter can use them."""
     if getattr(sys, 'frozen', False):
