@@ -56,7 +56,9 @@ def _load_env_file_into_process(path: str, only_prefix: str = "H2T_") -> None:
                 v = v.strip()
                 if not k or not k.startswith(only_prefix):
                     continue
-                if k in os.environ:
+                # Si el proceso ya tiene la clave pero vacía (por ejemplo por systemd),
+                # permitimos que el env file la sobrescriba.
+                if k in os.environ and str(os.environ.get(k, "")).strip() != "":
                     continue
                 # systemd EnvironmentFile permite comillas; soportamos lo básico.
                 if (len(v) >= 2) and ((v[0] == v[-1]) and v[0] in ("\"", "'")):
@@ -801,6 +803,9 @@ class DeviceBridgeApp:
               H2T_TD8_AUTO_EVERY_2S = 0|1|true|false
         """
 
+        # Ensure we read the latest written env file too.
+        _load_env_file_into_process(os.environ.get("H2T_ENV_FILE", "/etc/h2train-app.env"))
+
         def _env_str(key: str) -> Optional[str]:
             v = os.environ.get(key)
             if v is None:
@@ -942,6 +947,13 @@ class DeviceBridgeApp:
                 self._on_auto_flow_changed()
             except Exception:
                 pass
+
+        # Startup visibility: log which env we ended up with.
+        try:
+            effective = {k: os.environ.get(k) for k in sorted(os.environ.keys()) if k.startswith("H2T_")}
+            print("[h2train-app] effective H2T_*:", json.dumps(effective, ensure_ascii=False))
+        except Exception:
+            pass
 
     def _invoke_on_ui_thread(self, fn, timeout: float = 15.0):
         done = threading.Event()
