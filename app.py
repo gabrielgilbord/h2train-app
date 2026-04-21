@@ -32,7 +32,7 @@ except Exception:  # pragma: no cover - entorno sin pycryptodome
 from serial_handler import SerialHandler, list_ports
 from ble_handler import BLEHandler
 
-APP_VERSION = "v1.4.39"
+APP_VERSION = "v1.4.40"
 
 def _load_env_file_into_process(path: str, only_prefix: str = "H2T_") -> None:
     """
@@ -44,6 +44,7 @@ def _load_env_file_into_process(path: str, only_prefix: str = "H2T_") -> None:
             return
         if not os.path.exists(path):
             return
+        injected = []
         with open(path, "r", encoding="utf-8") as f:
             for raw in f.read().splitlines():
                 line = raw.strip()
@@ -64,6 +65,16 @@ def _load_env_file_into_process(path: str, only_prefix: str = "H2T_") -> None:
                 if (len(v) >= 2) and ((v[0] == v[-1]) and v[0] in ("\"", "'")):
                     v = v[1:-1]
                 os.environ[k] = v
+                try:
+                    os.putenv(k, v)
+                except Exception:
+                    pass
+                injected.append(k)
+        if injected:
+            try:
+                print(f"[h2train-app] loaded {len(injected)} vars from {path}: {', '.join(injected[:8])}{'...' if len(injected) > 8 else ''}")
+            except Exception:
+                pass
     except Exception:
         # No romper la app si el env file está corrupto.
         return
