@@ -1364,7 +1364,8 @@ class DeviceBridgeApp:
         self.uart_combo = ttk.Combobox(conn_frame, textvariable=self.uart_port_var, width=38)
         self.uart_combo.grid(row=0, column=1, padx=6, pady=4)
         ttk.Label(conn_frame, text="Baudios:").grid(row=0, column=2, sticky=tk.W, padx=(12, 0))
-        self.uart_baud_var = tk.StringVar(value="9600")
+        # En producción el firmware usa 921600.
+        self.uart_baud_var = tk.StringVar(value="921600")
         ttk.Spinbox(conn_frame, from_=300, to=2000000, textvariable=self.uart_baud_var,
                     width=10).grid(row=0, column=3, padx=4, pady=4)
 
@@ -2790,8 +2791,37 @@ class DeviceBridgeApp:
         if not getattr(self, "auto_flow_var", None) or not self.auto_flow_var.get():
             self._td8_auto_flow_job = None
             return
-        # Reejecutamos la simulación con las últimas muestras disponibles.
-        self._on_simulate_window_flow()
+        # Cada tick actualizamos la clave final visible (128b) usando el ECG actual.
+        try:
+            n = int(getattr(self, "analysis_window_var", None).get() if hasattr(self, "analysis_window_var") else 2048)
+        except Exception:
+            n = 2048
+        n = max(256, min(n, 8192))
+
+        try:
+            use_synth = getattr(self, "ecg_source_var", None) is not None and self.ecg_source_var.get() == "ECG sintético (función)"
+        except Exception:
+            use_synth = False
+
+        try:
+            samples = self._synthetic_ecg(n) if use_synth else list(self._series_3bx)[-n:]
+            if len(samples) >= 256:
+                key_bytes, ent, _dbg, _cand, _best = self._ecg_key_pipeline(samples)
+                self.key_hex_var.set(key_bytes.hex())
+                self.key_entropy_var.set(f"Entropía: {ent:.3f}")
+                self.key_status_var.set(f"Auto key @2s ({'sintético' if use_synth else '3bx'}) | n={len(samples)}")
+        except Exception as e:
+            try:
+                self.key_status_var.set(f"Auto key error: {e}")
+            except Exception:
+                pass
+
+        # (Opcional) Reejecutamos la simulación de flujo por ventanas para actualizar gráficos.
+        # Es más pesada, pero mantiene la demo alineada con el modo auto.
+        try:
+            self._on_simulate_window_flow()
+        except Exception:
+            pass
 
     def _encrypt_segment_for_plot(self, key_bytes: bytes, seg_plain, window_index: int):
         """
