@@ -734,6 +734,8 @@ class DeviceBridgeApp:
         self._uart_rx_zero_streak = 0
         self._uart_zero_diag_done = False
         self._parser_mode = "h2t30"
+        self._h2t_validate_crc = True
+        self._last_h2t_sensor_type = ""
         self._raw17_header = 0x02
         self._raw17_byteorder = "big"
         self._raw17_signed = False
@@ -843,6 +845,14 @@ class DeviceBridgeApp:
             if vv in ("0", "false", "no", "n", "off"):
                 return False
             return None
+
+        # H2T packet validation controls (debug / firmware variants)
+        crc_ok = _env_bool("H2T_UART_VALIDATE_CRC")
+        if crc_ok is not None:
+            try:
+                self._h2t_validate_crc = bool(crc_ok)
+            except Exception:
+                pass
 
         def _env_int(key: str) -> Optional[int]:
             v = _env_str(key)
@@ -1057,6 +1067,13 @@ class DeviceBridgeApp:
                                 "entropy_label": app.key_entropy_var.get() if hasattr(app, "key_entropy_var") else "",
                                 "status": app.key_status_var.get() if hasattr(app, "key_status_var") else "",
                                 "parser": getattr(app, "_parser_mode", ""),
+                                "uart": {
+                                    "h2t_ok": getattr(app, "_uart_packets_ok", 0),
+                                    "h2t_crc_err": getattr(app, "_uart_packets_crc_err", 0),
+                                    "last_type": getattr(app, "_last_h2t_sensor_type", ""),
+                                    "validate_crc": getattr(app, "_h2t_validate_crc", True),
+                                    "ecg_samples": len(getattr(app, "_series_3bx", [])) if hasattr(app, "_series_3bx") else 0,
+                                },
                                 "ecg_3bx": {"n": len(ecg), "samples": ecg},
                             }
 
@@ -3731,7 +3748,7 @@ class DeviceBridgeApp:
             return
 
         while True:
-            packet = self._extract_next_h2t_packet()
+            packet = self._extract_next_h2t_packet_from(self._uart_rx_buffer, count_crc_errors=True, validate_crc=self._h2t_validate_crc)
             if packet is None:
                 break
             self._uart_packets_ok += 1
@@ -3781,7 +3798,7 @@ class DeviceBridgeApp:
         return None
 
     def _extract_next_h2t_packet(self) -> Optional[bytes]:
-        return self._extract_next_h2t_packet_from(self._uart_rx_buffer, count_crc_errors=True)
+        return self._extract_next_h2t_packet_from(self._uart_rx_buffer, count_crc_errors=True, validate_crc=self._h2t_validate_crc)
 
     def _extract_next_raw17_packet(self) -> Optional[bytes]:
         """
@@ -3895,6 +3912,7 @@ class DeviceBridgeApp:
 
     def _process_uart_packet(self, packet: bytes, include_4404: bool = True):
         sensor_type = chr(packet[3])
+        self._last_h2t_sensor_type = sensor_type
         payload = packet[5:29]
         if sensor_type == "3":
             try:
