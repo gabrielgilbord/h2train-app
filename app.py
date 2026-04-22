@@ -1037,6 +1037,35 @@ class DeviceBridgeApp:
                         },
                     )
                     return
+                if self.path == "/api/runtime":
+                    # Snapshot ligero para telemetría remota (Pi-Dashboard).
+                    try:
+                        # Ventana corta de la señal ECG (si existe).
+                        ecg = []
+                        if hasattr(app, "_series_3bx"):
+                            ecg = list(getattr(app, "_series_3bx"))[-512:]
+                        # Downsample simple para no mandar demasiado.
+                        if len(ecg) > 256:
+                            step = max(1, len(ecg) // 256)
+                            ecg = ecg[::step]
+                        self._send_json(
+                            200,
+                            {
+                                "ok": True,
+                                "ts": time.time(),
+                                "key_hex": app.key_hex_var.get() if hasattr(app, "key_hex_var") else "",
+                                "entropy_label": app.key_entropy_var.get() if hasattr(app, "key_entropy_var") else "",
+                                "status": app.key_status_var.get() if hasattr(app, "key_status_var") else "",
+                                "parser": getattr(app, "_parser_mode", ""),
+                                "ecg_3bx": {
+                                    "n": len(ecg),
+                                    "samples": ecg,
+                                },
+                            },
+                        )
+                    except Exception as e:
+                        self._send_json(500, {"ok": False, "error": str(e)})
+                    return
                 if self.path == "/api/keyset/report":
                     report = app._last_keyset_report or {}
                     self._send_json(200, {"ok": True, "report": report})
