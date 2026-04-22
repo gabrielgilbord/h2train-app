@@ -1039,30 +1039,29 @@ class DeviceBridgeApp:
                     return
                 if self.path == "/api/runtime":
                     # Snapshot ligero para telemetría remota (Pi-Dashboard).
+                    # IMPORTANTE: Tkinter no es thread-safe. Este handler corre en un hilo distinto,
+                    # así que cualquier acceso a StringVar/estado UI debe hacerse vía _invoke_on_ui_thread.
                     try:
-                        # Ventana corta de la señal ECG (si existe).
-                        ecg = []
-                        if hasattr(app, "_series_3bx"):
-                            ecg = list(getattr(app, "_series_3bx"))[-512:]
-                        # Downsample simple para no mandar demasiado.
-                        if len(ecg) > 256:
-                            step = max(1, len(ecg) // 256)
-                            ecg = ecg[::step]
-                        self._send_json(
-                            200,
-                            {
+                        def _snap():
+                            ecg = []
+                            if hasattr(app, "_series_3bx"):
+                                # Copia segura (en hilo UI)
+                                ecg = list(getattr(app, "_series_3bx"))[-512:]
+                            if len(ecg) > 256:
+                                step = max(1, len(ecg) // 256)
+                                ecg = ecg[::step]
+                            return {
                                 "ok": True,
                                 "ts": time.time(),
                                 "key_hex": app.key_hex_var.get() if hasattr(app, "key_hex_var") else "",
                                 "entropy_label": app.key_entropy_var.get() if hasattr(app, "key_entropy_var") else "",
                                 "status": app.key_status_var.get() if hasattr(app, "key_status_var") else "",
                                 "parser": getattr(app, "_parser_mode", ""),
-                                "ecg_3bx": {
-                                    "n": len(ecg),
-                                    "samples": ecg,
-                                },
-                            },
-                        )
+                                "ecg_3bx": {"n": len(ecg), "samples": ecg},
+                            }
+
+                        payload = app._invoke_on_ui_thread(_snap, timeout=3.0) if hasattr(app, "_invoke_on_ui_thread") else _snap()
+                        self._send_json(200, payload)
                     except Exception as e:
                         self._send_json(500, {"ok": False, "error": str(e)})
                     return
