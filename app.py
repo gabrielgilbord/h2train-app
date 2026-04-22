@@ -790,6 +790,8 @@ class DeviceBridgeApp:
         self._bit11_reserve_bits = ""
         self._bit11_invalid_pool = []
         self._last_keyset_report = None
+        self._key_seq = 0
+        self._key_last_ts = 0.0
         self._last_batch_results = []
         self._api_server = None
         self._api_thread = None
@@ -1046,6 +1048,24 @@ class DeviceBridgeApp:
                             "last_report": app._last_keyset_report is not None,
                         },
                     )
+                    return
+                if self.path == "/api/key":
+                    # Ultra-light key snapshot for low-latency dashboard updates.
+                    try:
+                        def _snap_key():
+                            return {
+                                "ok": True,
+                                "ts": time.time(),
+                                "key_seq": int(getattr(app, "_key_seq", 0)),
+                                "key_last_ts": float(getattr(app, "_key_last_ts", 0.0)),
+                                "key_hex": app.key_hex_var.get() if hasattr(app, "key_hex_var") else "",
+                                "entropy_label": app.key_entropy_var.get() if hasattr(app, "key_entropy_var") else "",
+                            }
+
+                        payload = app._invoke_on_ui_thread(_snap_key, timeout=2.0) if hasattr(app, "_invoke_on_ui_thread") else _snap_key()
+                        self._send_json(200, payload)
+                    except Exception as e:
+                        self._send_json(500, {"ok": False, "error": str(e)})
                     return
                 if self.path == "/api/runtime":
                     # Snapshot ligero para telemetría remota (Pi-Dashboard).
@@ -1949,6 +1969,8 @@ class DeviceBridgeApp:
 
         self.key_hex_var.set(key_bytes.hex())
         self.key_entropy_var.set(f"Entropía normalizada: {entropy_norm:.3f}")
+        self._key_seq += 1
+        self._key_last_ts = time.time()
 
         self.keys_details.config(state=tk.NORMAL)
         self.keys_details.delete("1.0", tk.END)
@@ -2810,6 +2832,8 @@ class DeviceBridgeApp:
                 self.key_hex_var.set(key_bytes.hex())
                 self.key_entropy_var.set(f"Entropía: {ent:.3f}")
                 self.key_status_var.set(f"Auto key @2s ({'sintético' if use_synth else '3bx'}) | n={len(samples)}")
+                self._key_seq += 1
+                self._key_last_ts = time.time()
         except Exception as e:
             try:
                 self.key_status_var.set(f"Auto key error: {e}")
