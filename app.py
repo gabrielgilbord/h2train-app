@@ -32,7 +32,7 @@ except Exception:  # pragma: no cover - entorno sin pycryptodome
 from serial_handler import SerialHandler, list_ports
 from ble_handler import BLEHandler
 
-APP_VERSION = "v1.4.40"
+APP_VERSION = "v1.4.41"
 
 def _load_env_file_into_process(path: str, only_prefix: str = "H2T_") -> None:
     """
