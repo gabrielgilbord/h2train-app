@@ -3152,6 +3152,8 @@ class DeviceBridgeApp:
 
         # Para cada par (segmento i → Key_i derivada del ECG → cifrar segmento i+1).
         last_pair_idx = min(len(segments) - 1, max_segments) - 1
+        last_active_key = None
+        last_active_ent = None
         for i in range(min(len(segments) - 1, max_segments)):
             seg_key = segments[i]
             seg_plain = segments[i + 1]
@@ -3211,6 +3213,10 @@ class DeviceBridgeApp:
                 f"{[round(enc_q[k], 2) for k in range(min(4, len(enc_q)))]}"
             )
             flow_log.append("")
+
+            if i == last_pair_idx:
+                last_active_key = key_bytes
+                last_active_ent = ent
 
         # Actualizamos gráficas de flujo.
         self.flow_ecg_plot.set_series([(self._flow_ecg, "#22c55e")])
@@ -3305,6 +3311,15 @@ class DeviceBridgeApp:
         self.keys_details.config(state=tk.NORMAL)
         self.keys_details.insert(tk.END, "\n".join(flow_log) + "\n")
         self.keys_details.config(state=tk.DISABLED)
+
+        # Refrescar "Key result" con la clave activa del flujo (última generada).
+        try:
+            if last_active_key is not None and hasattr(self, "key_hex_var"):
+                self.key_hex_var.set(bytes(last_active_key).hex())
+            if last_active_ent is not None and hasattr(self, "key_entropy_var"):
+                self.key_entropy_var.set(f"Entropía normalizada: {float(last_active_ent):.3f}")
+        except Exception:
+            pass
 
         # Si está activado el modo automático, programamos la siguiente simulación.
         if getattr(self, "auto_flow_var", None) is not None and self.auto_flow_var.get():
