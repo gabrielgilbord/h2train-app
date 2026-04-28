@@ -32,7 +32,232 @@ except Exception:  # pragma: no cover - entorno sin pycryptodome
 from serial_handler import SerialHandler, list_ports
 from ble_handler import BLEHandler
 
-APP_VERSION = "v1.5.41"
+APP_VERSION = "v1.6.41"
+
+I18N = {
+    "es": {
+        "lang.label": "Idioma",
+        "lang.es": "Español",
+        "lang.en": "English",
+        "dialog.close": "Cerrar",
+        "tab.uart": "  UART / Serial  ",
+        "tab.ble": "  Bluetooth (BLE)  ",
+        "tab.keys": "  TD8-ECG Keys  ",
+        "uart.connection": "Conexión",
+        "uart.port": "Puerto:",
+        "uart.baud": "Tasa de Baudios:",
+        "uart.refresh": "↻ Actualizar",
+        "uart.connect": "Conectar",
+        "uart.reopen": "Reabrir (aplicar baudios)",
+        "uart.disconnect": "Desconectar",
+        "uart.disconnected": "● Desconectado",
+        "uart.stlink": "Nucleo ST-Link: sin forzar DTR/RTS",
+        "uart.parser": "Parser:",
+        "uart.raw17.endian": "Endian RAW17:",
+        "uart.raw17.signed": "RAW17 signed int24",
+        "uart.raw17.auto": "Auto detect RAW17",
+        "uart.raw17.auto300": "Auto x300",
+        "uart.detecting": "Detectando...",
+        "uart.filter": "Filtro señal",
+        "uart.f411.help": "Nucleo F411: el 'A' debe entrar por USART2 (PA3=RX). Si solo ves 0x00 y los LEDs SpO2 no reaccionan, el micro no está recibiendo el comando o no envía H2T: revisa baud, CubeMX y que TX de la placa vaya al ST-Link.",
+        "uart.channel4404": "Canal 4404:",
+        "uart.send": "Enviar datos",
+        "uart.send.button": "Enviar ➤",
+        "uart.send.stream": "Enviar A (stream)",
+        "uart.suffix": "Sufijo tras 'A' (si el firmware lo pide):",
+        "uart.received": "Datos recibidos",
+        "uart.plots": "Gráficas UART (H2T)",
+        "uart.plots.help": "3bx: 800 Hz | 4404: selector D1..D6 | SpO2 con D2(IR), D3(Red), D4(Ambient)",
+        "uart.stats": "Paquetes H2T: OK=0 | CRC_ERR=0",
+        "uart.spo2": "SpO2 estimado: h=--% | H=--%",
+        "ble.scan": "Escaneo",
+        "ble.scan.start": "🔍 Escanear dispositivos",
+        "ble.scan.stop": "Detener",
+        "ble.devices": "Dispositivos encontrados:",
+        "ble.connect.selected": "Conectar al seleccionado",
+        "ble.connected": "Dispositivo conectado",
+        "ble.service": "Servicio:",
+        "ble.characteristic": "Característica:",
+        "ble.read": "Leer",
+        "ble.notify": "Activar notificaciones",
+        "ble.disconnect": "Desconectar",
+        "ble.received": "Datos recibidos",
+        "keys.generator": "Generador de claves TD8-ECG",
+        "keys.generator.help": "Esta pestaña implementa un flujo estilo TD8-ECG:\nECG → Conversión RNS (p,q) → Rdp/Rdq/Cdp/Cdq → RdS/CdD → Función de composición → Analizador de entropía → HMAC-SHA-128 (HKDF).",
+        "keys.waiting": "Esperando datos ECG en la pestaña UART o señal sintética.",
+        "keys.entropy.empty": "Entropía: --",
+        "keys.generate": "Generar clave desde ECG actual",
+        "keys.pipeline": "Pipeline:",
+        "keys.source": "Fuente ECG:",
+        "keys.comp": "Función de composición:",
+        "keys.pipeline.rns_hkdf": "RNS+HKDF (actual)",
+        "keys.pipeline.11bit": "Acumulativo 11 bits/muestra",
+        "keys.ecg_source.live": "ECG 3bx en vivo",
+        "keys.ecg_source.synth": "ECG sintético (función)",
+        "keys.comp.crt": "CRT",
+        "keys.comp.xor": "XOR mezcla simple (RdS, CdD)",
+        "keys.comp.concat_sha": "Concat+SHA256 (RdS||CdD)",
+        "keys.comp.interleave": "Interleave bits (RdS, CdD)",
+        "keys.comp.rns_parity": "RNS parity mix (RdS, CdD)",
+        "keys.invalid.discard": "Descartar no válidas",
+        "keys.invalid.keep": "Guardar para recombinar",
+        "keys.recombine.half": "Mitad + mitad",
+        "keys.recombine.alternate": "Alternar bits",
+        "keys.recombine.xor_sha": "XOR + SHA256",
+        "keys.scan.no_overlap": "No solapado (128b)",
+        "keys.scan.shift11": "Desplazamiento 11b",
+        "keys.scan.shift1": "Desplazamiento 1b (máximo)",
+        "keys.cfg11": "Configuración pipeline 11 bits/muestra",
+        "keys.entropy.threshold": "Umbral entropía (0..0.99):",
+        "keys.invalid": "No válidas:",
+        "keys.recombine": "Recombinación:",
+        "keys.invalid.pool": "Pool no válidas (máx):",
+        "keys.keep.tail": "Conservar bits sobrantes para la próxima ejecución",
+        "keys.clear11": "Limpiar reserva/pool (11 bits)",
+        "keys.analysis.samples": "Análisis conjunto (muestras):",
+        "keys.scan128": "Barrido 128b:",
+        "keys.analyze": "Analizar límite y entropía de conjunto",
+        "keys.db.input": "DB ECG CSV (entrada):",
+        "keys.db.output": "CSV resultados:",
+        "keys.db.process": "Procesar DB ECG y exportar CSV",
+        "keys.result": "Resultado de la clave",
+        "keys.state": "Estado:",
+        "keys.keyhex": "Clave (128 bits, hex):",
+        "keys.intermediate": "Bloques intermedios (RNS / composición)",
+        "keys.flow": "Flujo por ventanas (segmento ECG → clave → cifrado siguiente segmento)",
+        "keys.flow.diagram.title": "Cadena de ventanas TD8-ECG (segmento → clave → cifrado siguiente segmento)",
+        "keys.flow.diagram.empty": "Sin datos de flujo todavía. Pulsa 'Simular flujo por ventanas'.",
+        "keys.flow.hkdf.title": "Detalles de candidatos HKDF para Key {idx}",
+        "keys.flow.hkdf.final": "Key {idx} — clave FINAL usada para cifrar (tras mezclar ECG{mixed}):\n  key_final[0..7] = {final_key_short}   H_norm_final = {final_ent:.3f}\n\n",
+        "keys.flow.hkdf.mixed_suffix": " + clave inicial",
+        "keys.flow.hkdf.list_intro": "Candidatos HKDF a partir del ECG (★ = base de la clave final antes de mezclar):\n\n",
+        "keys.flow.key_init": "Key init",
+        "keys.flow.enc_segment": "ECG {idx} cifrada",
+        "keys.window": "Tamaño de ventana (muestras):",
+        "keys.flow.simulate": "Simular flujo por ventanas (ECG en vivo)",
+        "keys.flow.auto": "Auto (cada 2 s)",
+        "keys.seed": "Clave inicial (hex, opcional):",
+        "keys.seed.always": "Clave inicial como semilla (mezclar con todas las claves)",
+        "status.api.ready": "API comandos activa en http://{host}:{port}/api/health",
+        "status.api.error": "No se pudo iniciar API de comandos: {error}",
+        "uart.select.port": "Selecciona un puerto.",
+        "uart.connected.port": "● Conectado: {port}",
+        "uart.port.opened": "Puerto abierto: {port} @ {baud} baud — {mode}",
+        "uart.error": "● Error: {error}",
+        "uart.closed": "Puerto cerrado",
+    },
+    "en": {
+        "lang.label": "Language",
+        "lang.es": "Spanish",
+        "lang.en": "English",
+        "dialog.close": "Close",
+        "tab.uart": "  UART / Serial  ",
+        "tab.ble": "  Bluetooth (BLE)  ",
+        "tab.keys": "  TD8-ECG Keys  ",
+        "uart.connection": "Connection",
+        "uart.port": "Port:",
+        "uart.baud": "Baud rate:",
+        "uart.refresh": "↻ Refresh",
+        "uart.connect": "Connect",
+        "uart.reopen": "Reopen (apply baud)",
+        "uart.disconnect": "Disconnect",
+        "uart.disconnected": "● Disconnected",
+        "uart.stlink": "Nucleo ST-Link: do not force DTR/RTS",
+        "uart.parser": "Parser:",
+        "uart.raw17.endian": "RAW17 endian:",
+        "uart.raw17.signed": "RAW17 signed int24",
+        "uart.raw17.auto": "Auto detect RAW17",
+        "uart.raw17.auto300": "Auto x300",
+        "uart.detecting": "Detecting...",
+        "uart.filter": "Signal filter",
+        "uart.f411.help": "Nucleo F411: command 'A' must go through USART2 (PA3=RX). If you only see 0x00 and the SpO2 LEDs don't react, the MCU is not receiving the command or is not sending H2T: check baud, CubeMX, and that the board TX goes to the ST-Link.",
+        "uart.channel4404": "4404 channel:",
+        "uart.send": "Send data",
+        "uart.send.button": "Send ➤",
+        "uart.send.stream": "Send A (stream)",
+        "uart.suffix": "Suffix after 'A' (if firmware needs it):",
+        "uart.received": "Received data",
+        "uart.plots": "UART plots (H2T)",
+        "uart.plots.help": "3bx: 800 Hz | 4404: select D1..D6 | SpO2 using D2(IR), D3(Red), D4(Ambient)",
+        "uart.stats": "H2T packets: OK=0 | CRC_ERR=0",
+        "uart.spo2": "Estimated SpO2: h=--% | H=--%",
+        "ble.scan": "Scan",
+        "ble.scan.start": "🔍 Scan devices",
+        "ble.scan.stop": "Stop",
+        "ble.devices": "Found devices:",
+        "ble.connect.selected": "Connect selected",
+        "ble.connected": "Connected device",
+        "ble.service": "Service:",
+        "ble.characteristic": "Characteristic:",
+        "ble.read": "Read",
+        "ble.notify": "Enable notifications",
+        "ble.disconnect": "Disconnect",
+        "ble.received": "Received data",
+        "keys.generator": "TD8-ECG key generator",
+        "keys.generator.help": "This tab implements a TD8-ECG-style flow:\nECG → RNS conversion (p,q) → Rdp/Rdq/Cdp/Cdq → RdS/CdD → Composition function → Entropy analyzer → HMAC-SHA-128 (HKDF).",
+        "keys.waiting": "Waiting for ECG data from the UART tab or synthetic signal.",
+        "keys.entropy.empty": "Entropy: --",
+        "keys.generate": "Generate key from current ECG",
+        "keys.pipeline": "Pipeline:",
+        "keys.source": "ECG source:",
+        "keys.comp": "Composition function:",
+        "keys.pipeline.rns_hkdf": "RNS+HKDF (current)",
+        "keys.pipeline.11bit": "Cumulative 11-bit/sample",
+        "keys.ecg_source.live": "Live ECG 3bx",
+        "keys.ecg_source.synth": "Synthetic ECG (function)",
+        "keys.comp.crt": "CRT",
+        "keys.comp.xor": "XOR simple mix (RdS, CdD)",
+        "keys.comp.concat_sha": "Concat+SHA256 (RdS||CdD)",
+        "keys.comp.interleave": "Interleave bits (RdS, CdD)",
+        "keys.comp.rns_parity": "RNS parity mix (RdS, CdD)",
+        "keys.invalid.discard": "Discard invalid",
+        "keys.invalid.keep": "Keep for recombination",
+        "keys.recombine.half": "Half + half",
+        "keys.recombine.alternate": "Alternate bits",
+        "keys.recombine.xor_sha": "XOR + SHA256",
+        "keys.scan.no_overlap": "Non-overlapping (128b)",
+        "keys.scan.shift11": "Shift 11b",
+        "keys.scan.shift1": "Shift 1b (max)",
+        "keys.cfg11": "11-bit/sample pipeline settings",
+        "keys.entropy.threshold": "Entropy threshold (0..0.99):",
+        "keys.invalid": "Invalid keys:",
+        "keys.recombine": "Recombination:",
+        "keys.invalid.pool": "Invalid pool (max):",
+        "keys.keep.tail": "Keep leftover bits for next run",
+        "keys.clear11": "Clear reserve/pool (11-bit)",
+        "keys.analysis.samples": "Joint analysis (samples):",
+        "keys.scan128": "128b scan:",
+        "keys.analyze": "Analyze limit and set entropy",
+        "keys.db.input": "ECG DB CSV (input):",
+        "keys.db.output": "Results CSV:",
+        "keys.db.process": "Process ECG DB and export CSV",
+        "keys.result": "Key result",
+        "keys.state": "State:",
+        "keys.keyhex": "Key (128 bits, hex):",
+        "keys.intermediate": "Intermediate blocks (RNS / composition)",
+        "keys.flow": "Window flow (ECG segment → key → next segment encryption)",
+        "keys.flow.diagram.title": "TD8-ECG window chain (segment → key → next segment encryption)",
+        "keys.flow.diagram.empty": "No flow data yet. Press 'Simulate window flow'.",
+        "keys.flow.hkdf.title": "HKDF candidate details for Key {idx}",
+        "keys.flow.hkdf.final": "Key {idx} — FINAL key used for encryption (after mixing ECG{mixed}):\n  final_key[0..7] = {final_key_short}   final_H_norm = {final_ent:.3f}\n\n",
+        "keys.flow.hkdf.mixed_suffix": " + initial key",
+        "keys.flow.hkdf.list_intro": "HKDF candidates derived from ECG (★ = base key before final mixing):\n\n",
+        "keys.flow.key_init": "Init key",
+        "keys.flow.enc_segment": "Encrypted ECG {idx}",
+        "keys.window": "Window size (samples):",
+        "keys.flow.simulate": "Simulate window flow (live ECG)",
+        "keys.flow.auto": "Auto (every 2 s)",
+        "keys.seed": "Initial key (hex, optional):",
+        "keys.seed.always": "Initial key as seed (mix into every generated key)",
+        "status.api.ready": "Command API active at http://{host}:{port}/api/health",
+        "status.api.error": "Could not start command API: {error}",
+        "uart.select.port": "Select a port.",
+        "uart.connected.port": "● Connected: {port}",
+        "uart.port.opened": "Port opened: {port} @ {baud} baud — {mode}",
+        "uart.error": "● Error: {error}",
+        "uart.closed": "Port closed",
+    },
+}
 
 def _load_env_file_into_process(path: str, only_prefix: str = "H2T_") -> None:
     """
@@ -448,6 +673,17 @@ class FlowDiagram(tk.Canvas):
         self.bind("<Double-Button-1>", self._on_double_click)
         self.after(500, self._blink_tick)
 
+    def _tr(self, key: str, **kwargs) -> str:
+        top = self.winfo_toplevel()
+        app = getattr(top, "_app", None)
+        if app is not None and hasattr(app, "tr"):
+            return app.tr(key, **kwargs)
+        text = I18N["es"].get(key, key)
+        try:
+            return text.format(**kwargs) if kwargs else text
+        except Exception:
+            return text
+
     def set_flow(self, items):
         self._items = list(items or [])
         self._has_active = any(bool(it.get("active")) for it in self._items)
@@ -492,7 +728,7 @@ class FlowDiagram(tk.Canvas):
 
         top = self.winfo_toplevel()
         win = tk.Toplevel(top)
-        win.title(f"Detalles de candidatos HKDF para Key {idx}")
+        win.title(self._tr("keys.flow.hkdf.title", idx=idx))
         win.configure(bg="#020617")
 
         text = scrolledtext.ScrolledText(
@@ -508,13 +744,17 @@ class FlowDiagram(tk.Canvas):
 
         text.insert(
             tk.END,
-            f"Key {idx} — clave FINAL usada para cifrar (tras mezclar ECG"
-            f"{' + clave inicial' if mixed else ''}):\n"
-            f"  key_final[0..7] = {final_key_short}   H_norm_final = {final_ent:.3f}\n\n",
+            self._tr(
+                "keys.flow.hkdf.final",
+                idx=idx,
+                mixed=self._tr("keys.flow.hkdf.mixed_suffix") if mixed else "",
+                final_key_short=final_key_short,
+                final_ent=final_ent,
+            ),
         )
         text.insert(
             tk.END,
-            "Candidatos HKDF a partir del ECG (★ = base de la clave final antes de mezclar):\n\n",
+            self._tr("keys.flow.hkdf.list_intro"),
         )
         for c in cands:
             e = float(c.get("entropy", 0.0))
@@ -537,7 +777,7 @@ class FlowDiagram(tk.Canvas):
             8,
             8,
             anchor=tk.NW,
-            text="Cadena de ventanas TD8-ECG (segmento → clave → cifrado siguiente segmento)",
+            text=self._tr("keys.flow.diagram.title"),
             fill="#e5e7eb",
             font=("Poppins", 9, "bold"),
         )
@@ -546,7 +786,7 @@ class FlowDiagram(tk.Canvas):
             self.create_text(
                 w // 2,
                 h // 2,
-                text="Sin datos de flujo todavía. Pulsa 'Simular flujo por ventanas'.",
+                text=self._tr("keys.flow.diagram.empty"),
                 fill="#64748b",
                 font=("Poppins", 9),
             )
@@ -630,7 +870,7 @@ class FlowDiagram(tk.Canvas):
                 }
             )
             # Título y resumen siempre en la mitad superior del bloque.
-            key_title = "Key init" if it.get("init") else f"Key {it['idx']}"
+            key_title = self._tr("keys.flow.key_init") if it.get("init") else f"Key {it['idx']}"
             self.create_text(
                 (key_x0 + key_x1) / 2,
                 y_mid - 20,
@@ -697,7 +937,7 @@ class FlowDiagram(tk.Canvas):
             self.create_text(
                 (enc_x0 + enc_x1) / 2,
                 y_mid,
-                text=f"ECG {enc_label_idx} cifrada",
+                text=self._tr("keys.flow.enc_segment", idx=enc_label_idx),
                 fill="#fed7aa",
                 font=("Poppins", 8),
             )
@@ -710,6 +950,7 @@ class FlowDiagram(tk.Canvas):
 class DeviceBridgeApp:
     def __init__(self):
         self.root = tk.Tk()
+        self.root._app = self
         self.root.title("H2TRAIN \u2014 Device Bridge")
         self.root.minsize(850, 620)
         self.root.geometry("950x680")
@@ -734,8 +975,6 @@ class DeviceBridgeApp:
         self._uart_rx_zero_streak = 0
         self._uart_zero_diag_done = False
         self._parser_mode = "h2t30"
-        self._h2t_validate_crc = True
-        self._last_h2t_sensor_type = ""
         self._raw17_header = 0x02
         self._raw17_byteorder = "big"
         self._raw17_signed = False
@@ -790,11 +1029,12 @@ class DeviceBridgeApp:
         self._bit11_reserve_bits = ""
         self._bit11_invalid_pool = []
         self._last_keyset_report = None
-        self._key_seq = 0
-        self._key_last_ts = 0.0
         self._last_batch_results = []
         self._api_server = None
         self._api_thread = None
+        self._i18n_callbacks = []
+        self._lang = self._load_ui_lang()
+        self.lang_var = tk.StringVar(value=self._lang)
 
         self._setup_style()
         self._build_ui()
@@ -802,6 +1042,93 @@ class DeviceBridgeApp:
         self._start_command_api_server()
         self._process_queue()
         self._refresh_uart_plots()
+
+    def _ui_settings_path(self) -> str:
+        return os.path.expanduser("~/.config/h2train-device-bridge-ui.json")
+
+    def _load_ui_lang(self) -> str:
+        try:
+            path = self._ui_settings_path()
+            if os.path.exists(path):
+                with open(path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                lang = str(data.get("lang", "es")).strip().lower()
+                if lang in I18N:
+                    return lang
+        except Exception:
+            pass
+        return "es"
+
+    def _save_ui_lang(self) -> None:
+        try:
+            path = self._ui_settings_path()
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump({"lang": self._lang}, f)
+        except Exception:
+            pass
+
+    def tr(self, key: str, **kwargs) -> str:
+        lang = self._lang if self._lang in I18N else "es"
+        text = I18N.get(lang, {}).get(key) or I18N["es"].get(key) or key
+        try:
+            return text.format(**kwargs) if kwargs else text
+        except Exception:
+            return text
+
+    def _opt(self, base_key: str) -> str:
+        # Alias pequeño para opciones traducibles (combos).
+        return self.tr(base_key)
+
+    def _is_value_any_lang(self, current: str, keys: list[str]) -> bool:
+        cur = (current or "").strip()
+        for k in keys:
+            if cur == I18N["es"].get(k) or cur == I18N["en"].get(k):
+                return True
+        return False
+
+    def _value_to_key(self, current: str, keys: list[str], default_key: str) -> str:
+        cur = (current or "").strip()
+        for k in keys:
+            if cur == I18N["es"].get(k) or cur == I18N["en"].get(k):
+                return k
+        return default_key
+
+    def _translate_choice(self, current: str, keys: list[str], default_key: str) -> str:
+        k = self._value_to_key(current, keys, default_key)
+        return self.tr(k)
+
+    def _bind_i18n(self, fn):
+        self._i18n_callbacks.append(fn)
+        return fn
+
+    def _refresh_i18n(self):
+        for cb in list(self._i18n_callbacks):
+            try:
+                cb()
+            except Exception:
+                pass
+
+    def _on_language_changed(self, *_args):
+        new_lang = str(self.lang_var.get() or "es").strip().lower()
+        if new_lang not in I18N:
+            return
+        old_lang = self._lang if self._lang in I18N else "es"
+        old_disconnected = I18N[old_lang].get("uart.disconnected")
+        old_waiting = I18N[old_lang].get("keys.waiting")
+        old_stats = I18N[old_lang].get("uart.stats")
+        old_spo2 = I18N[old_lang].get("uart.spo2")
+        self._lang = new_lang
+        self._save_ui_lang()
+        self._refresh_i18n()
+        if getattr(self, "uart_status_var", None) is not None and self.uart_status_var.get() == old_disconnected:
+            self.uart_status_var.set(self.tr("uart.disconnected"))
+        if getattr(self, "key_status_var", None) is not None and self.key_status_var.get() == old_waiting:
+            self.key_status_var.set(self.tr("keys.waiting"))
+        if getattr(self, "uart_packet_stats_var", None) is not None and self.uart_packet_stats_var.get() == old_stats:
+            self.uart_packet_stats_var.set(self.tr("uart.stats"))
+        if getattr(self, "uart_spo2_var", None) is not None and self.uart_spo2_var.get() == old_spo2:
+            self.uart_spo2_var.set(self.tr("uart.spo2"))
 
     def _apply_env_overrides(self):
         """
@@ -847,14 +1174,6 @@ class DeviceBridgeApp:
             if vv in ("0", "false", "no", "n", "off"):
                 return False
             return None
-
-        # H2T packet validation controls (debug / firmware variants)
-        crc_ok = _env_bool("H2T_UART_VALIDATE_CRC")
-        if crc_ok is not None:
-            try:
-                self._h2t_validate_crc = bool(crc_ok)
-            except Exception:
-                pass
 
         def _env_int(key: str) -> Optional[int]:
             v = _env_str(key)
@@ -1049,56 +1368,32 @@ class DeviceBridgeApp:
                         },
                     )
                     return
-                if self.path == "/api/key":
-                    # Ultra-light key snapshot for low-latency dashboard updates.
-                    try:
-                        def _snap_key():
-                            return {
-                                "ok": True,
-                                "ts": time.time(),
-                                "key_seq": int(getattr(app, "_key_seq", 0)),
-                                "key_last_ts": float(getattr(app, "_key_last_ts", 0.0)),
-                                "key_hex": app.key_hex_var.get() if hasattr(app, "key_hex_var") else "",
-                                "entropy_label": app.key_entropy_var.get() if hasattr(app, "key_entropy_var") else "",
-                            }
-
-                        payload = app._invoke_on_ui_thread(_snap_key, timeout=2.0) if hasattr(app, "_invoke_on_ui_thread") else _snap_key()
-                        self._send_json(200, payload)
-                    except Exception as e:
-                        self._send_json(500, {"ok": False, "error": str(e)})
-                    return
                 if self.path == "/api/runtime":
                     # Snapshot ligero para telemetría remota (Pi-Dashboard).
-                    # IMPORTANTE: Tkinter no es thread-safe. Este handler corre en un hilo distinto,
-                    # así que cualquier acceso a StringVar/estado UI debe hacerse vía _invoke_on_ui_thread.
                     try:
-                        def _snap():
-                            ecg = []
-                            if hasattr(app, "_series_3bx"):
-                                # Copia segura (en hilo UI)
-                                ecg = list(getattr(app, "_series_3bx"))[-512:]
-                            if len(ecg) > 256:
-                                step = max(1, len(ecg) // 256)
-                                ecg = ecg[::step]
-                            return {
+                        # Ventana corta de la señal ECG (si existe).
+                        ecg = []
+                        if hasattr(app, "_series_3bx"):
+                            ecg = list(getattr(app, "_series_3bx"))[-512:]
+                        # Downsample simple para no mandar demasiado.
+                        if len(ecg) > 256:
+                            step = max(1, len(ecg) // 256)
+                            ecg = ecg[::step]
+                        self._send_json(
+                            200,
+                            {
                                 "ok": True,
                                 "ts": time.time(),
                                 "key_hex": app.key_hex_var.get() if hasattr(app, "key_hex_var") else "",
                                 "entropy_label": app.key_entropy_var.get() if hasattr(app, "key_entropy_var") else "",
                                 "status": app.key_status_var.get() if hasattr(app, "key_status_var") else "",
                                 "parser": getattr(app, "_parser_mode", ""),
-                                "uart": {
-                                    "h2t_ok": getattr(app, "_uart_packets_ok", 0),
-                                    "h2t_crc_err": getattr(app, "_uart_packets_crc_err", 0),
-                                    "last_type": getattr(app, "_last_h2t_sensor_type", ""),
-                                    "validate_crc": getattr(app, "_h2t_validate_crc", True),
-                                    "ecg_samples": len(getattr(app, "_series_3bx", [])) if hasattr(app, "_series_3bx") else 0,
+                                "ecg_3bx": {
+                                    "n": len(ecg),
+                                    "samples": ecg,
                                 },
-                                "ecg_3bx": {"n": len(ecg), "samples": ecg},
-                            }
-
-                        payload = app._invoke_on_ui_thread(_snap, timeout=3.0) if hasattr(app, "_invoke_on_ui_thread") else _snap()
-                        self._send_json(200, payload)
+                            },
+                        )
                     except Exception as e:
                         self._send_json(500, {"ok": False, "error": str(e)})
                     return
@@ -1158,11 +1453,11 @@ class DeviceBridgeApp:
             t = threading.Thread(target=_serve, daemon=True, name="h2train-command-api")
             t.start()
             self._api_thread = t
-            self.key_status_var.set(f"API comandos activa en http://{host}:{port}/api/health")
+            self.key_status_var.set(self.tr("status.api.ready", host=host, port=port))
         except OSError as e:
             self._api_server = None
             self._api_thread = None
-            self.key_status_var.set(f"No se pudo iniciar API de comandos: {e}")
+            self.key_status_var.set(self.tr("status.api.error", error=e))
 
     def _set_icon(self):
         try:
@@ -1306,7 +1601,7 @@ class DeviceBridgeApp:
 
         btn_row = tk.Frame(frame, bg="#020617")
         btn_row.pack(anchor=tk.E, pady=(12, 0))
-        ttk.Button(btn_row, text="Cerrar", command=top.destroy).pack()
+        ttk.Button(btn_row, text=self.tr("dialog.close"), command=top.destroy).pack()
 
         top.update_idletasks()
         w = top.winfo_width()
@@ -1342,12 +1637,21 @@ class DeviceBridgeApp:
         tk.Label(title_frame, text="Device Bridge", font=("Poppins", 14),
                  fg="#94a3b8", bg=HEADER_BG).pack(anchor=tk.W)
 
+        lang_frame = tk.Frame(header, bg=HEADER_BG)
+        lang_frame.pack(side=tk.RIGHT, padx=(0, 12), pady=12)
+        self.lang_label = tk.Label(lang_frame, text=self.tr("lang.label"), font=("Poppins", 9), fg="#94a3b8", bg=HEADER_BG)
+        self.lang_label.pack(side=tk.LEFT, padx=(0, 6))
+        self.lang_combo = ttk.Combobox(lang_frame, textvariable=self.lang_var, width=6, state="readonly", values=["es", "en"])
+        self.lang_combo.pack(side=tk.LEFT)
+        self.lang_combo.bind("<<ComboboxSelected>>", self._on_language_changed)
+
         tk.Label(header, text=APP_VERSION, font=("Poppins", 9),
                  fg="#475569", bg=HEADER_BG).pack(side=tk.RIGHT, padx=(0, 20), pady=12)
 
         tk.Frame(self.root, bg="#2563eb", height=3).pack(fill=tk.X)
 
         nb = ttk.Notebook(self.root)
+        self._main_nb = nb
         # Ocupamos prácticamente todo el ancho/alto de la ventana.
         nb.pack(fill=tk.BOTH, expand=True, padx=4, pady=(6, 10))
 
@@ -1355,7 +1659,7 @@ class DeviceBridgeApp:
         # Hacemos la pestaña UART desplazable en vertical para poder ver
         # cómodamente el log y las gráficas aunque la ventana sea pequeña.
         uart_container = ttk.Frame(nb)
-        nb.add(uart_container, text="  UART / Serial  ")
+        nb.add(uart_container, text=self.tr("tab.uart"))
 
         uart_canvas = tk.Canvas(uart_container, bg="#0f172a", highlightthickness=0)
         uart_canvas.pack(fill=tk.BOTH, expand=True, side=tk.LEFT)
@@ -1376,45 +1680,49 @@ class DeviceBridgeApp:
 
         uart_canvas.bind("<Configure>", _uart_canvas_configure)
 
-        conn_frame = ttk.LabelFrame(uart_frame, text="Conexi\u00f3n", padding=10)
+        conn_frame = ttk.LabelFrame(uart_frame, text=self.tr("uart.connection"), padding=10)
+        self._uart_conn_frame = conn_frame
         conn_frame.grid(row=0, column=0, sticky=tk.EW, pady=(0, 8))
 
-        ttk.Label(conn_frame, text="Puerto:").grid(row=0, column=0, sticky=tk.W, pady=4)
+        self.uart_port_label = ttk.Label(conn_frame, text=self.tr("uart.port"))
+        self.uart_port_label.grid(row=0, column=0, sticky=tk.W, pady=4)
         self.uart_port_var = tk.StringVar()
         self.uart_combo = ttk.Combobox(conn_frame, textvariable=self.uart_port_var, width=38)
         self.uart_combo.grid(row=0, column=1, padx=6, pady=4)
-        ttk.Label(conn_frame, text="Baudios:").grid(row=0, column=2, sticky=tk.W, padx=(12, 0))
-        # En producción el firmware usa 921600.
+        self.uart_baud_label = ttk.Label(conn_frame, text=self.tr("uart.baud"))
+        self.uart_baud_label.grid(row=0, column=2, sticky=tk.W, padx=(12, 0))
         self.uart_baud_var = tk.StringVar(value="921600")
         ttk.Spinbox(conn_frame, from_=300, to=2000000, textvariable=self.uart_baud_var,
                     width=10).grid(row=0, column=3, padx=4, pady=4)
 
         btn_row = ttk.Frame(conn_frame)
         btn_row.grid(row=1, column=0, columnspan=4, sticky=tk.W, pady=(6, 0))
-        ttk.Button(btn_row, text="\u21bb Actualizar", command=self._uart_refresh).pack(
-            side=tk.LEFT, padx=(0, 6))
-        ttk.Button(btn_row, text="Conectar", command=self._uart_open,
-                   style="Success.TButton").pack(side=tk.LEFT, padx=4)
-        ttk.Button(btn_row, text="Reabrir (aplicar baudios)", command=self._uart_reopen).pack(
-            side=tk.LEFT, padx=4
-        )
-        self.uart_close_btn = ttk.Button(btn_row, text="Desconectar", command=self._uart_close,
+        self.uart_refresh_btn = ttk.Button(btn_row, text=self.tr("uart.refresh"), command=self._uart_refresh)
+        self.uart_refresh_btn.pack(side=tk.LEFT, padx=(0, 6))
+        self.uart_connect_btn = ttk.Button(btn_row, text=self.tr("uart.connect"), command=self._uart_open,
+                   style="Success.TButton")
+        self.uart_connect_btn.pack(side=tk.LEFT, padx=4)
+        self.uart_reopen_btn = ttk.Button(btn_row, text=self.tr("uart.reopen"), command=self._uart_reopen)
+        self.uart_reopen_btn.pack(side=tk.LEFT, padx=4)
+        self.uart_close_btn = ttk.Button(btn_row, text=self.tr("uart.disconnect"), command=self._uart_close,
                                          state=tk.DISABLED, style="Danger.TButton")
         self.uart_close_btn.pack(side=tk.LEFT, padx=4)
-        self.uart_status_var = tk.StringVar(value="\u25cf Desconectado")
+        self.uart_status_var = tk.StringVar(value=self.tr("uart.disconnected"))
         ttk.Label(btn_row, textvariable=self.uart_status_var).pack(side=tk.LEFT, padx=(16, 0))
         # Nucleo F411RE: el COM suele ser "ST-Link Virtual COM"; no filtramos por nombre.
         # Forzar DTR/RTS a veces molesta con ST-Link; Bluepill/CH340 suele ir bien con DTR/RTS.
         self.uart_nucleo_stlink_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(
+        self.uart_stlink_check = ttk.Checkbutton(
             btn_row,
-            text="Nucleo ST-Link: sin forzar DTR/RTS",
+            text=self.tr("uart.stlink"),
             variable=self.uart_nucleo_stlink_var,
-        ).pack(side=tk.LEFT, padx=(12, 0))
+        )
+        self.uart_stlink_check.pack(side=tk.LEFT, padx=(12, 0))
 
         parser_row = ttk.Frame(conn_frame)
         parser_row.grid(row=2, column=0, columnspan=4, sticky=tk.W, pady=(8, 0))
-        ttk.Label(parser_row, text="Parser:").pack(side=tk.LEFT, padx=(0, 4))
+        self.uart_parser_label = ttk.Label(parser_row, text=self.tr("uart.parser"))
+        self.uart_parser_label.pack(side=tk.LEFT, padx=(0, 4))
         self.uart_parser_var = tk.StringVar(value="H2T 30B + CRC")
         self.uart_parser_combo = ttk.Combobox(
             parser_row,
@@ -1426,7 +1734,8 @@ class DeviceBridgeApp:
         self.uart_parser_combo.pack(side=tk.LEFT, padx=(0, 10))
         self.uart_parser_combo.bind("<<ComboboxSelected>>", lambda _e: self._on_uart_parser_changed())
 
-        ttk.Label(parser_row, text="Endian RAW17:").pack(side=tk.LEFT, padx=(0, 4))
+        self.uart_endian_label = ttk.Label(parser_row, text=self.tr("uart.raw17.endian"))
+        self.uart_endian_label.pack(side=tk.LEFT, padx=(0, 4))
         self.uart_raw17_bo_var = tk.StringVar(value="big")
         self.uart_raw17_bo_combo = ttk.Combobox(
             parser_row,
@@ -1441,32 +1750,34 @@ class DeviceBridgeApp:
         self.uart_raw17_signed_var = tk.BooleanVar(value=False)
         ttk.Checkbutton(
             parser_row,
-            text="RAW17 signed int24",
+            text=self.tr("uart.raw17.signed"),
             variable=self.uart_raw17_signed_var,
             command=self._on_uart_parser_changed,
         ).pack(side=tk.LEFT)
         self.uart_raw17_auto_btn = ttk.Button(
             parser_row,
-            text="Auto detect RAW17",
+            text=self.tr("uart.raw17.auto"),
             command=self._start_raw17_autodetect,
         )
         self.uart_raw17_auto_btn.pack(side=tk.LEFT, padx=(10, 0))
         self.uart_raw17_auto300_btn = ttk.Button(
             parser_row,
-            text="Auto x300",
+            text=self.tr("uart.raw17.auto300"),
             command=lambda: self._start_raw17_autodetect(300),
         )
         self.uart_raw17_auto300_btn.pack(side=tk.LEFT, padx=(6, 0))
         self.uart_filter_var = tk.BooleanVar(value=True)
-        ttk.Checkbutton(
+        self.uart_filter_check = ttk.Checkbutton(
             parser_row,
-            text="Filtro señal",
+            text=self.tr("uart.filter"),
             variable=self.uart_filter_var,
             command=self._on_uart_filter_changed,
-        ).pack(side=tk.LEFT, padx=(10, 0))
+        )
+        self.uart_filter_check.pack(side=tk.LEFT, padx=(10, 0))
         chan_row = ttk.Frame(conn_frame)
         chan_row.grid(row=3, column=0, columnspan=4, sticky=tk.W, pady=(8, 0))
-        ttk.Label(chan_row, text="Canal 4404:").pack(side=tk.LEFT, padx=(0, 6))
+        self.uart_channel_label = ttk.Label(chan_row, text=self.tr("uart.channel4404"))
+        self.uart_channel_label.pack(side=tk.LEFT, padx=(0, 6))
         self.uart_ch_var = tk.IntVar(value=6)
         for ch in range(1, 7):
             ttk.Radiobutton(
@@ -1478,20 +1789,22 @@ class DeviceBridgeApp:
             ).pack(side=tk.LEFT, padx=(0, 6))
         conn_frame.columnconfigure(1, weight=1)
 
-        send_frame = ttk.LabelFrame(uart_frame, text="Enviar datos", padding=10)
+        send_frame = ttk.LabelFrame(uart_frame, text=self.tr("uart.send"), padding=10)
+        self._uart_send_frame = send_frame
         send_frame.grid(row=1, column=0, sticky=tk.EW, pady=(0, 8))
         send_row1 = ttk.Frame(send_frame)
         send_row1.pack(fill=tk.X)
         self.uart_send_var = tk.StringVar()
         self.uart_send_entry = ttk.Entry(send_row1, textvariable=self.uart_send_var, width=50)
         self.uart_send_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 8))
-        ttk.Button(send_row1, text="Enviar \u27a4", command=self._uart_send).pack(side=tk.LEFT)
-        ttk.Button(send_row1, text="Enviar A (stream)", command=self._uart_send_cmd_a).pack(
-            side=tk.LEFT, padx=(6, 0)
-        )
+        self.uart_send_btn = ttk.Button(send_row1, text=self.tr("uart.send.button"), command=self._uart_send)
+        self.uart_send_btn.pack(side=tk.LEFT)
+        self.uart_send_stream_btn = ttk.Button(send_row1, text=self.tr("uart.send.stream"), command=self._uart_send_cmd_a)
+        self.uart_send_stream_btn.pack(side=tk.LEFT, padx=(6, 0))
         send_row2 = ttk.Frame(send_frame)
         send_row2.pack(fill=tk.X, pady=(8, 0))
-        ttk.Label(send_row2, text="Sufijo tras 'A' (si el firmware lo pide):").pack(side=tk.LEFT, padx=(0, 6))
+        self.uart_suffix_label = ttk.Label(send_row2, text=self.tr("uart.suffix"))
+        self.uart_suffix_label.pack(side=tk.LEFT, padx=(0, 6))
         self.uart_stream_suffix_var = tk.StringVar(value="Ninguno")
         ttk.Combobox(
             send_row2,
@@ -1503,37 +1816,37 @@ class DeviceBridgeApp:
         ttk.Label(
             send_frame,
             text=(
-                "Nucleo F411: el 'A' debe entrar por USART2 (PA3=RX). Si solo ves 0x00 y los LEDs SpO2 no "
-                "reaccionan, el micro no está recibiendo el comando o no envía H2T: revisa baud, CubeMX "
-                "y que TX de la placa vaya al ST-Link."
+                self.tr("uart.f411.help")
             ),
             wraplength=720,
             foreground="#555",
         ).pack(anchor=tk.W, pady=(8, 0))
 
-        ttk.Label(uart_frame, text="Datos recibidos").grid(
-            row=2, column=0, sticky=tk.W, pady=(4, 2))
+        self.uart_received_label = ttk.Label(uart_frame, text=self.tr("uart.received"))
+        self.uart_received_label.grid(row=2, column=0, sticky=tk.W, pady=(4, 2))
         # Hacemos el área de "Datos recibidos" más alta para ver mejor el tráfico.
         self.uart_log = scrolledtext.ScrolledText(
             uart_frame, height=14, width=80, state=tk.DISABLED)
         self.uart_log.grid(row=3, column=0, sticky=tk.NSEW, pady=(0, 4))
-        plot_frame = ttk.LabelFrame(uart_frame, text="Gráficas UART (H2T)", padding=8)
+        plot_frame = ttk.LabelFrame(uart_frame, text=self.tr("uart.plots"), padding=8)
+        self._uart_plot_frame = plot_frame
         plot_frame.grid(row=4, column=0, sticky=tk.NSEW, pady=(6, 0))
-        ttk.Label(
+        self.uart_plot_help_label = ttk.Label(
             plot_frame,
-            text="3bx: 800 Hz | 4404: selector D1..D6 | SpO2 con D2(IR), D3(Red), D4(Ambient)",
-        ).grid(row=0, column=0, sticky=tk.W, pady=(0, 4))
+            text=self.tr("uart.plots.help"),
+        )
+        self.uart_plot_help_label.grid(row=0, column=0, sticky=tk.W, pady=(0, 4))
         self.plot_3bx = MiniPlot(plot_frame, "3bx ECG (QRS)", autoscale_lo=0.002, autoscale_hi=0.998)
         self.plot_3bx.grid(row=1, column=0, sticky=tk.EW, pady=2)
         self.plot_h = MiniPlot(plot_frame, "4404 h (derecha) D6")
         self.plot_h.grid(row=2, column=0, sticky=tk.EW, pady=2)
         self.plot_H = MiniPlot(plot_frame, "4404 H (izquierda) D6")
         self.plot_H.grid(row=3, column=0, sticky=tk.EW, pady=2)
-        self.uart_packet_stats_var = tk.StringVar(value="Paquetes H2T: OK=0 | CRC_ERR=0")
+        self.uart_packet_stats_var = tk.StringVar(value=self.tr("uart.stats"))
         ttk.Label(plot_frame, textvariable=self.uart_packet_stats_var).grid(
             row=4, column=0, sticky=tk.W, pady=(4, 0)
         )
-        self.uart_spo2_var = tk.StringVar(value="SpO2 estimado: h=--% | H=--%")
+        self.uart_spo2_var = tk.StringVar(value=self.tr("uart.spo2"))
         ttk.Label(plot_frame, textvariable=self.uart_spo2_var).grid(
             row=5, column=0, sticky=tk.W, pady=(2, 0)
         )
@@ -1545,20 +1858,23 @@ class DeviceBridgeApp:
 
         # --- BLE tab ---
         ble_frame = ttk.Frame(nb, padding=14)
-        nb.add(ble_frame, text="  Bluetooth (BLE)  ")
+        nb.add(ble_frame, text=self.tr("tab.ble"))
 
-        scan_frame = ttk.LabelFrame(ble_frame, text="Escaneo", padding=10)
+        scan_frame = ttk.LabelFrame(ble_frame, text=self.tr("ble.scan"), padding=10)
+        self._ble_scan_frame = scan_frame
         scan_frame.grid(row=0, column=0, sticky=tk.EW, pady=(0, 8))
         scan_btns = ttk.Frame(scan_frame)
         scan_btns.pack(fill=tk.X)
-        ttk.Button(scan_btns, text="\U0001f50d Escanear dispositivos",
-                   command=self._ble_scan_start).pack(side=tk.LEFT, padx=(0, 6))
-        self.ble_stop_btn = ttk.Button(scan_btns, text="Detener",
+        self.ble_scan_btn = ttk.Button(scan_btns, text=self.tr("ble.scan.start"),
+                   command=self._ble_scan_start)
+        self.ble_scan_btn.pack(side=tk.LEFT, padx=(0, 6))
+        self.ble_stop_btn = ttk.Button(scan_btns, text=self.tr("ble.scan.stop"),
                                        command=self._ble_scan_stop, state=tk.DISABLED,
                                        style="Danger.TButton")
         self.ble_stop_btn.pack(side=tk.LEFT, padx=4)
 
-        ttk.Label(scan_frame, text="Dispositivos encontrados:").pack(anchor=tk.W, pady=(8, 2))
+        self.ble_devices_label = ttk.Label(scan_frame, text=self.tr("ble.devices"))
+        self.ble_devices_label.pack(anchor=tk.W, pady=(8, 2))
         list_frame = ttk.Frame(scan_frame)
         list_frame.pack(fill=tk.BOTH, expand=True)
         self.ble_listbox = tk.Listbox(list_frame, height=5, width=70)
@@ -1568,12 +1884,13 @@ class DeviceBridgeApp:
         self.ble_listbox.config(yscrollcommand=scroll.set)
         self.ble_addresses: list = []
 
-        ttk.Button(scan_frame, text="Conectar al seleccionado",
-                   command=self._ble_connect, style="Success.TButton").pack(
+        self.ble_connect_btn = ttk.Button(scan_frame, text=self.tr("ble.connect.selected"),
+                   command=self._ble_connect, style="Success.TButton")
+        self.ble_connect_btn.pack(
             anchor=tk.W, pady=(8, 0))
 
         self.ble_connected_frame = ttk.LabelFrame(
-            ble_frame, text="Dispositivo conectado", padding=10)
+            ble_frame, text=self.tr("ble.connected"), padding=10)
         self.ble_connected_frame.grid(row=1, column=0, sticky=tk.EW, pady=(0, 8))
         self.ble_connected_label = ttk.Label(self.ble_connected_frame, text="\u2014")
         self.ble_connected_label.pack(anchor=tk.W)
@@ -1581,24 +1898,28 @@ class DeviceBridgeApp:
         self.ble_chars_label.pack(anchor=tk.W)
         uuid_row = ttk.Frame(self.ble_connected_frame)
         uuid_row.pack(fill=tk.X, pady=(6, 0))
-        ttk.Label(uuid_row, text="Servicio:").pack(side=tk.LEFT)
+        self.ble_service_label = ttk.Label(uuid_row, text=self.tr("ble.service"))
+        self.ble_service_label.pack(side=tk.LEFT)
         self.ble_svc_entry = ttk.Entry(uuid_row, width=36)
         self.ble_svc_entry.pack(side=tk.LEFT, padx=(4, 12))
-        ttk.Label(uuid_row, text="Caracter\u00edstica:").pack(side=tk.LEFT)
+        self.ble_characteristic_label = ttk.Label(uuid_row, text=self.tr("ble.characteristic"))
+        self.ble_characteristic_label.pack(side=tk.LEFT)
         self.ble_char_entry = ttk.Entry(uuid_row, width=36)
         self.ble_char_entry.pack(side=tk.LEFT, padx=4)
         action_row = ttk.Frame(self.ble_connected_frame)
         action_row.pack(fill=tk.X, pady=(8, 0))
-        ttk.Button(action_row, text="Leer", command=self._ble_read).pack(
-            side=tk.LEFT, padx=(0, 6))
-        ttk.Button(action_row, text="Activar notificaciones",
-                   command=self._ble_notify).pack(side=tk.LEFT, padx=4)
-        ttk.Button(action_row, text="Desconectar", command=self._ble_disconnect,
-                   style="Danger.TButton").pack(side=tk.LEFT, padx=4)
+        self.ble_read_btn = ttk.Button(action_row, text=self.tr("ble.read"), command=self._ble_read)
+        self.ble_read_btn.pack(side=tk.LEFT, padx=(0, 6))
+        self.ble_notify_btn = ttk.Button(action_row, text=self.tr("ble.notify"),
+                   command=self._ble_notify)
+        self.ble_notify_btn.pack(side=tk.LEFT, padx=4)
+        self.ble_disconnect_btn = ttk.Button(action_row, text=self.tr("ble.disconnect"), command=self._ble_disconnect,
+                   style="Danger.TButton")
+        self.ble_disconnect_btn.pack(side=tk.LEFT, padx=4)
         self.ble_connected_frame.grid_remove()
 
-        ttk.Label(ble_frame, text="Datos recibidos").grid(
-            row=2, column=0, sticky=tk.W, pady=(4, 2))
+        self.ble_received_label = ttk.Label(ble_frame, text=self.tr("ble.received"))
+        self.ble_received_label.grid(row=2, column=0, sticky=tk.W, pady=(4, 2))
         self.ble_log = scrolledtext.ScrolledText(
             ble_frame, height=10, width=80, state=tk.DISABLED)
         self.ble_log.grid(row=3, column=0, sticky=tk.NSEW, pady=(0, 4))
@@ -1607,8 +1928,181 @@ class DeviceBridgeApp:
 
         # --- TD8-ECG Key Generator tab ---
         keys_frame = ttk.Frame(nb, padding=14)
-        nb.add(keys_frame, text="  TD8-ECG Keys  ")
+        nb.add(keys_frame, text=self.tr("tab.keys"))
         self._build_keys_tab(keys_frame)
+        self._bind_i18n(lambda: self.lang_label.config(text=self.tr("lang.label")))
+        self._bind_i18n(lambda: self._main_nb.tab(0, text=self.tr("tab.uart")))
+        self._bind_i18n(lambda: self._main_nb.tab(1, text=self.tr("tab.ble")))
+        self._bind_i18n(lambda: self._main_nb.tab(2, text=self.tr("tab.keys")))
+        self._bind_i18n(lambda: self._uart_conn_frame.config(text=self.tr("uart.connection")))
+        self._bind_i18n(lambda: self.uart_port_label.config(text=self.tr("uart.port")))
+        self._bind_i18n(lambda: self.uart_baud_label.config(text=self.tr("uart.baud")))
+        self._bind_i18n(lambda: self.uart_refresh_btn.config(text=self.tr("uart.refresh")))
+        self._bind_i18n(lambda: self.uart_connect_btn.config(text=self.tr("uart.connect")))
+        self._bind_i18n(lambda: self.uart_reopen_btn.config(text=self.tr("uart.reopen")))
+        self._bind_i18n(lambda: self.uart_close_btn.config(text=self.tr("uart.disconnect")))
+        self._bind_i18n(lambda: self.uart_stlink_check.config(text=self.tr("uart.stlink")))
+        self._bind_i18n(lambda: self.uart_filter_check.config(text=self.tr("uart.filter")))
+        self._bind_i18n(lambda: self.uart_parser_label.config(text=self.tr("uart.parser")))
+        self._bind_i18n(lambda: self.uart_endian_label.config(text=self.tr("uart.raw17.endian")))
+        self._bind_i18n(lambda: self.uart_raw17_auto_btn.config(text=self.tr("uart.raw17.auto")))
+        self._bind_i18n(lambda: self.uart_raw17_auto300_btn.config(text=self.tr("uart.raw17.auto300")))
+        self._bind_i18n(lambda: self.uart_channel_label.config(text=self.tr("uart.channel4404")))
+        self._bind_i18n(lambda: self._uart_send_frame.config(text=self.tr("uart.send")))
+        self._bind_i18n(lambda: self.uart_send_btn.config(text=self.tr("uart.send.button")))
+        self._bind_i18n(lambda: self.uart_send_stream_btn.config(text=self.tr("uart.send.stream")))
+        self._bind_i18n(lambda: self.uart_suffix_label.config(text=self.tr("uart.suffix")))
+        self._bind_i18n(lambda: self.uart_received_label.config(text=self.tr("uart.received")))
+        self._bind_i18n(lambda: self._uart_plot_frame.config(text=self.tr("uart.plots")))
+        self._bind_i18n(lambda: self.uart_plot_help_label.config(text=self.tr("uart.plots.help")))
+        self._bind_i18n(lambda: self._ble_scan_frame.config(text=self.tr("ble.scan")))
+        self._bind_i18n(lambda: self.ble_scan_btn.config(text=self.tr("ble.scan.start")))
+        self._bind_i18n(lambda: self.ble_stop_btn.config(text=self.tr("ble.scan.stop")))
+        self._bind_i18n(lambda: self.ble_devices_label.config(text=self.tr("ble.devices")))
+        self._bind_i18n(lambda: self.ble_connect_btn.config(text=self.tr("ble.connect.selected")))
+        self._bind_i18n(lambda: self.ble_connected_frame.config(text=self.tr("ble.connected")))
+        self._bind_i18n(lambda: self.ble_service_label.config(text=self.tr("ble.service")))
+        self._bind_i18n(lambda: self.ble_characteristic_label.config(text=self.tr("ble.characteristic")))
+        self._bind_i18n(lambda: self.ble_read_btn.config(text=self.tr("ble.read")))
+        self._bind_i18n(lambda: self.ble_notify_btn.config(text=self.tr("ble.notify")))
+        self._bind_i18n(lambda: self.ble_disconnect_btn.config(text=self.tr("ble.disconnect")))
+        self._bind_i18n(lambda: self.ble_received_label.config(text=self.tr("ble.received")))
+        self._bind_i18n(lambda: self._keys_info_frame.config(text=self.tr("keys.generator")))
+        self._bind_i18n(lambda: self.keys_help_label.config(text=self.tr("keys.generator.help")))
+        self._bind_i18n(lambda: self.generate_key_btn.config(text=self.tr("keys.generate")))
+        self._bind_i18n(lambda: self.keys_pipeline_label.config(text=self.tr("keys.pipeline")))
+        self._bind_i18n(lambda: self.keys_source_label.config(text=self.tr("keys.source")))
+        self._bind_i18n(lambda: self.keys_comp_label.config(text=self.tr("keys.comp")))
+        self._bind_i18n(lambda: self._keys_cfg_frame.config(text=self.tr("keys.cfg11")))
+        self._bind_i18n(lambda: self.keys_threshold_label.config(text=self.tr("keys.entropy.threshold")))
+        self._bind_i18n(lambda: self.keys_invalid_label.config(text=self.tr("keys.invalid")))
+        self._bind_i18n(lambda: self.keys_recombine_label.config(text=self.tr("keys.recombine")))
+        self._bind_i18n(lambda: self.keys_invalid_pool_label.config(text=self.tr("keys.invalid.pool")))
+        self._bind_i18n(lambda: self.keys_keep_tail_check.config(text=self.tr("keys.keep.tail")))
+        self._bind_i18n(lambda: self.keys_clear11_btn.config(text=self.tr("keys.clear11")))
+        self._bind_i18n(lambda: self.keys_analysis_label.config(text=self.tr("keys.analysis.samples")))
+        self._bind_i18n(lambda: self.keys_scan_label.config(text=self.tr("keys.scan128")))
+        self._bind_i18n(lambda: self.keys_analyze_btn.config(text=self.tr("keys.analyze")))
+        self._bind_i18n(lambda: self.keys_db_input_label.config(text=self.tr("keys.db.input")))
+        self._bind_i18n(lambda: self.keys_db_output_label.config(text=self.tr("keys.db.output")))
+        self._bind_i18n(lambda: self.keys_db_process_btn.config(text=self.tr("keys.db.process")))
+        self._bind_i18n(lambda: self._keys_status_frame.config(text=self.tr("keys.result")))
+        self._bind_i18n(lambda: self.keys_state_label.config(text=self.tr("keys.state")))
+        self._bind_i18n(lambda: self.keys_keyhex_label.config(text=self.tr("keys.keyhex")))
+        self._bind_i18n(lambda: self._keys_details_frame.config(text=self.tr("keys.intermediate")))
+        self._bind_i18n(lambda: self._keys_flow_frame.config(text=self.tr("keys.flow")))
+        self._bind_i18n(lambda: self.keys_window_label.config(text=self.tr("keys.window")))
+        self._bind_i18n(lambda: self.keys_flow_sim_btn.config(text=self.tr("keys.flow.simulate")))
+        self._bind_i18n(lambda: self.keys_flow_auto_check.config(text=self.tr("keys.flow.auto")))
+        self._bind_i18n(lambda: self.keys_seed_label.config(text=self.tr("keys.seed")))
+        self._bind_i18n(lambda: self.keys_seed_check.config(text=self.tr("keys.seed.always")))
+        self._bind_i18n(lambda: self._refresh_keys_option_lists())
+
+    def _refresh_keys_option_lists(self):
+        # Refresca listas de combos traducibles y mantiene la selección.
+        try:
+            # pipeline
+            if hasattr(self, "keys_pipeline_combo"):
+                prev = self.key_pipeline_var.get()
+                self.keys_pipeline_combo["values"] = [
+                    self.tr("keys.pipeline.rns_hkdf"),
+                    self.tr("keys.pipeline.11bit"),
+                ]
+                self.key_pipeline_var.set(
+                    self._translate_choice(
+                        prev,
+                        ["keys.pipeline.rns_hkdf", "keys.pipeline.11bit"],
+                        "keys.pipeline.rns_hkdf",
+                    )
+                )
+
+            # ecg source
+            if hasattr(self, "keys_source_combo"):
+                prev = self.ecg_source_var.get()
+                self.keys_source_combo["values"] = [
+                    self.tr("keys.ecg_source.live"),
+                    self.tr("keys.ecg_source.synth"),
+                ]
+                self.ecg_source_var.set(
+                    self._translate_choice(
+                        prev,
+                        ["keys.ecg_source.live", "keys.ecg_source.synth"],
+                        "keys.ecg_source.live",
+                    )
+                )
+
+            # comp mode
+            if hasattr(self, "keys_comp_combo"):
+                prev = self.comp_mode_var.get()
+                self.keys_comp_combo["values"] = [
+                    self.tr("keys.comp.crt"),
+                    self.tr("keys.comp.xor"),
+                    self.tr("keys.comp.concat_sha"),
+                    self.tr("keys.comp.interleave"),
+                    self.tr("keys.comp.rns_parity"),
+                ]
+                self.comp_mode_var.set(
+                    self._translate_choice(
+                        prev,
+                        [
+                            "keys.comp.crt",
+                            "keys.comp.xor",
+                            "keys.comp.concat_sha",
+                            "keys.comp.interleave",
+                            "keys.comp.rns_parity",
+                        ],
+                        "keys.comp.crt",
+                    )
+                )
+
+            # invalid policy
+            if hasattr(self, "keys_invalid_combo"):
+                prev = self.invalid_policy_var.get()
+                self.keys_invalid_combo["values"] = [
+                    self.tr("keys.invalid.discard"),
+                    self.tr("keys.invalid.keep"),
+                ]
+                self.invalid_policy_var.set(
+                    self._translate_choice(
+                        prev,
+                        ["keys.invalid.discard", "keys.invalid.keep"],
+                        "keys.invalid.discard",
+                    )
+                )
+
+            # recombine
+            if hasattr(self, "keys_recombine_combo"):
+                prev = self.recombine_strategy_var.get()
+                self.keys_recombine_combo["values"] = [
+                    self.tr("keys.recombine.half"),
+                    self.tr("keys.recombine.alternate"),
+                    self.tr("keys.recombine.xor_sha"),
+                ]
+                self.recombine_strategy_var.set(
+                    self._translate_choice(
+                        prev,
+                        ["keys.recombine.half", "keys.recombine.alternate", "keys.recombine.xor_sha"],
+                        "keys.recombine.half",
+                    )
+                )
+
+            # scan mode
+            if hasattr(self, "keys_scan_combo"):
+                prev = self.analysis_scan_mode_var.get()
+                self.keys_scan_combo["values"] = [
+                    self.tr("keys.scan.no_overlap"),
+                    self.tr("keys.scan.shift11"),
+                    self.tr("keys.scan.shift1"),
+                ]
+                self.analysis_scan_mode_var.set(
+                    self._translate_choice(
+                        prev,
+                        ["keys.scan.no_overlap", "keys.scan.shift11", "keys.scan.shift1"],
+                        "keys.scan.shift1",
+                    )
+                )
+        except Exception:
+            pass
 
     def _build_keys_tab(self, parent: ttk.Frame):
         # Hacemos la pestaña TD8-ECG desplazable en vertical para que se vean
@@ -1634,90 +2128,97 @@ class DeviceBridgeApp:
         canvas.bind("<Configure>", _on_canvas_configure)
         canvas.bind_all("<MouseWheel>", lambda e: canvas.yview_scroll(int(-1 * (e.delta / 120)), "units"))
 
-        info_frame = ttk.LabelFrame(content, text="Generador de claves TD8-ECG", padding=12)
+        info_frame = ttk.LabelFrame(content, text=self.tr("keys.generator"), padding=12)
+        self._keys_info_frame = info_frame
         info_frame.grid(row=0, column=0, sticky=tk.EW, pady=(0, 10))
 
-        ttk.Label(
+        self.keys_help_label = ttk.Label(
             info_frame,
-            text=(
-                "Esta pestaña implementa un flujo estilo TD8-ECG:\n"
-                "ECG \u2192 Conversión RNS (p,q) \u2192 Rdp/Rdq/Cdp/Cdq \u2192 RdS/CdD \u2192 "
-                "Función de composición \u2192 Analizador de entropía \u2192 HMAC-SHA-128 (HKDF)."
-            ),
+            text=self.tr("keys.generator.help"),
             justify=tk.LEFT,
             wraplength=640,
-        ).grid(row=0, column=0, sticky=tk.W)
+        )
+        self.keys_help_label.grid(row=0, column=0, sticky=tk.W)
 
-        self.key_status_var = tk.StringVar(value="Esperando datos ECG en la pestaña UART o señal sintética.")
+        self.key_status_var = tk.StringVar(value=self.tr("keys.waiting"))
         self.key_hex_var = tk.StringVar(value="")
-        self.key_entropy_var = tk.StringVar(value="Entropía: --")
-        self.key_pipeline_var = tk.StringVar(value="RNS+HKDF (actual)")
-        self.comp_mode_var = tk.StringVar(value="CRT (Teorema Chino del Resto)")
-        self.ecg_source_var = tk.StringVar(value="ECG 3bx en vivo")
+        self.key_entropy_var = tk.StringVar(value=self.tr("keys.entropy.empty"))
+        self.key_pipeline_var = tk.StringVar(value=self.tr("keys.pipeline.rns_hkdf"))
+        self.comp_mode_var = tk.StringVar(value=self.tr("keys.comp.crt"))
+        self.ecg_source_var = tk.StringVar(value=self.tr("keys.ecg_source.live"))
         self.initial_key_as_seed_var = tk.BooleanVar(value=False)  # False = solo primer segmento; True = mezclar siempre
         self.key_entropy_threshold_var = tk.DoubleVar(value=0.85)
-        self.invalid_policy_var = tk.StringVar(value="Descartar no válidas")
-        self.recombine_strategy_var = tk.StringVar(value="Mitad + mitad")
+        self.invalid_policy_var = tk.StringVar(value=self.tr("keys.invalid.discard"))
+        self.recombine_strategy_var = tk.StringVar(value=self.tr("keys.recombine.half"))
         self.keep_tail_bits_var = tk.BooleanVar(value=True)
         self.max_invalid_pool_var = tk.IntVar(value=24)
         self.analysis_window_var = tk.IntVar(value=2048)
-        self.analysis_scan_mode_var = tk.StringVar(value="Desplazamiento 1b (máximo)")
+        self.analysis_scan_mode_var = tk.StringVar(value=self.tr("keys.scan.shift1"))
         self.ecg_db_input_csv_var = tk.StringVar(value="ecg_signals_db.csv")
         self.ecg_db_output_csv_var = tk.StringVar(value="ecg_key_results.csv")
 
         controls = ttk.Frame(content)
         controls.grid(row=1, column=0, sticky=tk.EW, pady=(0, 10))
 
-        ttk.Button(
+        self.generate_key_btn = ttk.Button(
             controls,
-            text="Generar clave desde ECG actual",
+            text=self.tr("keys.generate"),
             command=self._on_generate_ecg_key,
             style="Success.TButton",
-        ).pack(side=tk.LEFT)
-        ttk.Label(controls, text="Pipeline:").pack(side=tk.LEFT, padx=(14, 4))
-        ttk.Combobox(
+        )
+        self.generate_key_btn.pack(side=tk.LEFT)
+        self.keys_pipeline_label = ttk.Label(controls, text=self.tr("keys.pipeline"))
+        self.keys_pipeline_label.pack(side=tk.LEFT, padx=(14, 4))
+        self.keys_pipeline_combo = ttk.Combobox(
             controls,
             textvariable=self.key_pipeline_var,
             state="readonly",
             width=26,
             values=[
-                "RNS+HKDF (actual)",
-                "Acumulativo 11 bits/muestra",
+                self.tr("keys.pipeline.rns_hkdf"),
+                self.tr("keys.pipeline.11bit"),
             ],
-        ).pack(side=tk.LEFT)
+        )
+        self.keys_pipeline_combo.pack(side=tk.LEFT)
 
-        ttk.Label(controls, text="Fuente ECG:").pack(side=tk.LEFT, padx=(16, 4))
-        ttk.Combobox(
+        self.keys_source_label = ttk.Label(controls, text=self.tr("keys.source"))
+        self.keys_source_label.pack(side=tk.LEFT, padx=(16, 4))
+        self.keys_source_combo = ttk.Combobox(
             controls,
             textvariable=self.ecg_source_var,
             state="readonly",
             width=20,
             values=[
-                "ECG 3bx en vivo",
-                "ECG sintético (función)",
+                self.tr("keys.ecg_source.live"),
+                self.tr("keys.ecg_source.synth"),
             ],
-        ).pack(side=tk.LEFT)
+        )
+        self.keys_source_combo.pack(side=tk.LEFT)
 
-        ttk.Label(controls, text="Función de composición:").pack(side=tk.LEFT, padx=(16, 4))
-        ttk.Combobox(
+        self.keys_comp_label = ttk.Label(controls, text=self.tr("keys.comp"))
+        self.keys_comp_label.pack(side=tk.LEFT, padx=(16, 4))
+        self.keys_comp_combo = ttk.Combobox(
             controls,
             textvariable=self.comp_mode_var,
             state="readonly",
             width=28,
             values=[
-                "CRT (Teorema Chino del Resto)",
-                "XOR mezcla simple (RdS, CdD)",
-                "Concat+SHA256 (RdS||CdD)",
-                "Interleave bits (RdS, CdD)",
-                "RNS parity mix (RdS, CdD)",
+                self.tr("keys.comp.crt"),
+                self.tr("keys.comp.xor"),
+                self.tr("keys.comp.concat_sha"),
+                self.tr("keys.comp.interleave"),
+                self.tr("keys.comp.rns_parity"),
             ],
-        ).pack(side=tk.LEFT)
+        )
+        self.keys_comp_combo.pack(side=tk.LEFT)
 
         ttk.Label(controls, textvariable=self.key_entropy_var).pack(side=tk.LEFT, padx=(16, 0))
 
-        cfg_frame = ttk.LabelFrame(content, text="Configuración pipeline 11 bits/muestra", padding=10)
+        cfg_frame = ttk.LabelFrame(content, text=self.tr("keys.cfg11"), padding=10)
+        self._keys_cfg_frame = cfg_frame
         cfg_frame.grid(row=2, column=0, sticky=tk.EW, pady=(8, 0))
-        ttk.Label(cfg_frame, text="Umbral entropía (0..0.99):").grid(row=0, column=0, sticky=tk.W, pady=2)
+        self.keys_threshold_label = ttk.Label(cfg_frame, text=self.tr("keys.entropy.threshold"))
+        self.keys_threshold_label.grid(row=0, column=0, sticky=tk.W, pady=2)
         ttk.Spinbox(
             cfg_frame,
             from_=0.50,
@@ -1726,30 +2227,35 @@ class DeviceBridgeApp:
             textvariable=self.key_entropy_threshold_var,
             width=6,
         ).grid(row=0, column=1, sticky=tk.W, padx=(4, 12), pady=2)
-        ttk.Label(cfg_frame, text="No válidas:").grid(row=0, column=2, sticky=tk.W, pady=2)
-        ttk.Combobox(
+        self.keys_invalid_label = ttk.Label(cfg_frame, text=self.tr("keys.invalid"))
+        self.keys_invalid_label.grid(row=0, column=2, sticky=tk.W, pady=2)
+        self.keys_invalid_combo = ttk.Combobox(
             cfg_frame,
             textvariable=self.invalid_policy_var,
             state="readonly",
             width=22,
             values=[
-                "Descartar no válidas",
-                "Guardar para recombinar",
+                self.tr("keys.invalid.discard"),
+                self.tr("keys.invalid.keep"),
             ],
-        ).grid(row=0, column=3, sticky=tk.W, padx=(4, 12), pady=2)
-        ttk.Label(cfg_frame, text="Recombinación:").grid(row=1, column=0, sticky=tk.W, pady=2)
-        ttk.Combobox(
+        )
+        self.keys_invalid_combo.grid(row=0, column=3, sticky=tk.W, padx=(4, 12), pady=2)
+        self.keys_recombine_label = ttk.Label(cfg_frame, text=self.tr("keys.recombine"))
+        self.keys_recombine_label.grid(row=1, column=0, sticky=tk.W, pady=2)
+        self.keys_recombine_combo = ttk.Combobox(
             cfg_frame,
             textvariable=self.recombine_strategy_var,
             state="readonly",
             width=22,
             values=[
-                "Mitad + mitad",
-                "Alternar bits",
-                "XOR + SHA256",
+                self.tr("keys.recombine.half"),
+                self.tr("keys.recombine.alternate"),
+                self.tr("keys.recombine.xor_sha"),
             ],
-        ).grid(row=1, column=1, sticky=tk.W, padx=(4, 12), pady=2)
-        ttk.Label(cfg_frame, text="Pool no válidas (máx):").grid(row=1, column=2, sticky=tk.W, pady=2)
+        )
+        self.keys_recombine_combo.grid(row=1, column=1, sticky=tk.W, padx=(4, 12), pady=2)
+        self.keys_invalid_pool_label = ttk.Label(cfg_frame, text=self.tr("keys.invalid.pool"))
+        self.keys_invalid_pool_label.grid(row=1, column=2, sticky=tk.W, pady=2)
         ttk.Spinbox(
             cfg_frame,
             from_=2,
@@ -1758,17 +2264,20 @@ class DeviceBridgeApp:
             textvariable=self.max_invalid_pool_var,
             width=6,
         ).grid(row=1, column=3, sticky=tk.W, padx=(4, 12), pady=2)
-        ttk.Checkbutton(
+        self.keys_keep_tail_check = ttk.Checkbutton(
             cfg_frame,
-            text="Conservar bits sobrantes para la próxima ejecución",
+            text=self.tr("keys.keep.tail"),
             variable=self.keep_tail_bits_var,
-        ).grid(row=2, column=0, columnspan=4, sticky=tk.W, pady=(4, 0))
-        ttk.Button(
+        )
+        self.keys_keep_tail_check.grid(row=2, column=0, columnspan=4, sticky=tk.W, pady=(4, 0))
+        self.keys_clear11_btn = ttk.Button(
             cfg_frame,
-            text="Limpiar reserva/pool (11 bits)",
+            text=self.tr("keys.clear11"),
             command=self._clear_11bit_buffers,
-        ).grid(row=2, column=3, sticky=tk.E, pady=(4, 0))
-        ttk.Label(cfg_frame, text="Análisis conjunto (muestras):").grid(row=3, column=0, sticky=tk.W, pady=(8, 2))
+        )
+        self.keys_clear11_btn.grid(row=2, column=3, sticky=tk.E, pady=(4, 0))
+        self.keys_analysis_label = ttk.Label(cfg_frame, text=self.tr("keys.analysis.samples"))
+        self.keys_analysis_label.grid(row=3, column=0, sticky=tk.W, pady=(8, 2))
         ttk.Spinbox(
             cfg_frame,
             from_=256,
@@ -1777,53 +2286,63 @@ class DeviceBridgeApp:
             textvariable=self.analysis_window_var,
             width=7,
         ).grid(row=3, column=1, sticky=tk.W, padx=(4, 12), pady=(8, 2))
-        ttk.Label(cfg_frame, text="Barrido 128b:").grid(row=3, column=2, sticky=tk.W, pady=(8, 2))
-        ttk.Combobox(
+        self.keys_scan_label = ttk.Label(cfg_frame, text=self.tr("keys.scan128"))
+        self.keys_scan_label.grid(row=3, column=2, sticky=tk.W, pady=(8, 2))
+        self.keys_scan_combo = ttk.Combobox(
             cfg_frame,
             textvariable=self.analysis_scan_mode_var,
             state="readonly",
             width=26,
             values=[
-                "No solapado (128b)",
-                "Desplazamiento 11b",
-                "Desplazamiento 1b (máximo)",
+                self.tr("keys.scan.no_overlap"),
+                self.tr("keys.scan.shift11"),
+                self.tr("keys.scan.shift1"),
             ],
-        ).grid(row=3, column=3, sticky=tk.W, padx=(4, 12), pady=(8, 2))
-        ttk.Button(
+        )
+        self.keys_scan_combo.grid(row=3, column=3, sticky=tk.W, padx=(4, 12), pady=(8, 2))
+        self.keys_analyze_btn = ttk.Button(
             cfg_frame,
-            text="Analizar límite y entropía de conjunto",
+            text=self.tr("keys.analyze"),
             command=self._on_analyze_keyset_limit,
-        ).grid(row=4, column=0, columnspan=4, sticky=tk.W, pady=(8, 0))
-        ttk.Label(cfg_frame, text="DB ECG CSV (entrada):").grid(row=5, column=0, sticky=tk.W, pady=(8, 2))
+        )
+        self.keys_analyze_btn.grid(row=4, column=0, columnspan=4, sticky=tk.W, pady=(8, 0))
+        self.keys_db_input_label = ttk.Label(cfg_frame, text=self.tr("keys.db.input"))
+        self.keys_db_input_label.grid(row=5, column=0, sticky=tk.W, pady=(8, 2))
         ttk.Entry(cfg_frame, textvariable=self.ecg_db_input_csv_var, width=42).grid(
             row=5, column=1, columnspan=2, sticky=tk.W, padx=(4, 12), pady=(8, 2)
         )
-        ttk.Label(cfg_frame, text="CSV resultados:").grid(row=6, column=0, sticky=tk.W, pady=(2, 2))
+        self.keys_db_output_label = ttk.Label(cfg_frame, text=self.tr("keys.db.output"))
+        self.keys_db_output_label.grid(row=6, column=0, sticky=tk.W, pady=(2, 2))
         ttk.Entry(cfg_frame, textvariable=self.ecg_db_output_csv_var, width=42).grid(
             row=6, column=1, columnspan=2, sticky=tk.W, padx=(4, 12), pady=(2, 2)
         )
-        ttk.Button(
+        self.keys_db_process_btn = ttk.Button(
             cfg_frame,
-            text="Procesar DB ECG y exportar CSV",
+            text=self.tr("keys.db.process"),
             command=self._on_process_ecg_db_csv,
             style="Success.TButton",
-        ).grid(row=6, column=3, sticky=tk.E, pady=(2, 2))
+        )
+        self.keys_db_process_btn.grid(row=6, column=3, sticky=tk.E, pady=(2, 2))
 
-        status_frame = ttk.LabelFrame(content, text="Resultado de la clave", padding=10)
+        status_frame = ttk.LabelFrame(content, text=self.tr("keys.result"), padding=10)
+        self._keys_status_frame = status_frame
         status_frame.grid(row=3, column=0, sticky=tk.EW)
 
-        ttk.Label(status_frame, text="Estado:").grid(row=0, column=0, sticky=tk.W)
+        self.keys_state_label = ttk.Label(status_frame, text=self.tr("keys.state"))
+        self.keys_state_label.grid(row=0, column=0, sticky=tk.W)
         ttk.Label(status_frame, textvariable=self.key_status_var).grid(
             row=0, column=1, sticky=tk.W, padx=(4, 0)
         )
 
-        ttk.Label(status_frame, text="Clave (128 bits, hex):").grid(
+        self.keys_keyhex_label = ttk.Label(status_frame, text=self.tr("keys.keyhex"))
+        self.keys_keyhex_label.grid(
             row=1, column=0, sticky=tk.W, pady=(6, 0)
         )
         self.key_entry = ttk.Entry(status_frame, textvariable=self.key_hex_var, width=70)
         self.key_entry.grid(row=1, column=1, sticky=tk.W, padx=(4, 0), pady=(6, 0))
 
-        details_frame = ttk.LabelFrame(content, text="Bloques intermedios (RNS / composición)", padding=10)
+        details_frame = ttk.LabelFrame(content, text=self.tr("keys.intermediate"), padding=10)
+        self._keys_details_frame = details_frame
         details_frame.grid(row=4, column=0, sticky=tk.NSEW, pady=(10, 0))
 
         self.keys_details = scrolledtext.ScrolledText(
@@ -1834,43 +2353,49 @@ class DeviceBridgeApp:
         # Gráficas de flujo por ventanas: ECG segmento i y segmento i+1 cifrado con la clave de i.
         flow_frame = ttk.LabelFrame(
             content,
-            text="Flujo por ventanas (segmento ECG → clave → cifrado siguiente segmento)",
+            text=self.tr("keys.flow"),
             padding=10,
         )
+        self._keys_flow_frame = flow_frame
         flow_frame.grid(row=5, column=0, sticky=tk.NSEW, pady=(10, 0))
 
         flow_controls = ttk.Frame(flow_frame)
         flow_controls.grid(row=0, column=0, columnspan=2, sticky=tk.W)
 
         self.window_len_var = tk.IntVar(value=256)
-        ttk.Label(flow_controls, text="Tamaño de ventana (muestras):").pack(side=tk.LEFT)
+        self.keys_window_label = ttk.Label(flow_controls, text=self.tr("keys.window"))
+        self.keys_window_label.pack(side=tk.LEFT)
         ttk.Spinbox(flow_controls, from_=64, to=1024, increment=32, textvariable=self.window_len_var, width=6).pack(
             side=tk.LEFT, padx=(4, 12)
         )
-        ttk.Button(
+        self.keys_flow_sim_btn = ttk.Button(
             flow_controls,
-            text="Simular flujo por ventanas (ECG en vivo)",
+            text=self.tr("keys.flow.simulate"),
             command=self._on_simulate_window_flow,
-        ).pack(side=tk.LEFT, padx=(0, 12))
+        )
+        self.keys_flow_sim_btn.pack(side=tk.LEFT, padx=(0, 12))
 
         # Auto-simulación cada pocos segundos para que el flujo se vaya
         # actualizando solo según llega nueva señal.
         self.auto_flow_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(
+        self.keys_flow_auto_check = ttk.Checkbutton(
             flow_controls,
-            text="Auto (cada 2 s)",
+            text=self.tr("keys.flow.auto"),
             variable=self.auto_flow_var,
             command=self._on_auto_flow_changed,
-        ).pack(side=tk.LEFT, padx=(4, 0))
+        )
+        self.keys_flow_auto_check.pack(side=tk.LEFT, padx=(4, 0))
 
-        ttk.Label(flow_controls, text="Clave inicial (hex, opcional):").pack(side=tk.LEFT)
+        self.keys_seed_label = ttk.Label(flow_controls, text=self.tr("keys.seed"))
+        self.keys_seed_label.pack(side=tk.LEFT)
         self.initial_key_hex_var = tk.StringVar(value="")
         ttk.Entry(flow_controls, textvariable=self.initial_key_hex_var, width=28).pack(side=tk.LEFT, padx=(4, 8))
-        ttk.Checkbutton(
+        self.keys_seed_check = ttk.Checkbutton(
             flow_controls,
-            text="Clave inicial como semilla (mezclar con todas las claves)",
+            text=self.tr("keys.seed.always"),
             variable=self.initial_key_as_seed_var,
-        ).pack(side=tk.LEFT, padx=(0, 4))
+        )
+        self.keys_seed_check.pack(side=tk.LEFT, padx=(0, 4))
 
         # Diagrama lógico segmento → clave → cifrado siguiente segmento
         # a tamaño completo por encima de las gráficas.
@@ -1951,10 +2476,10 @@ class DeviceBridgeApp:
 
     def _on_generate_ecg_key(self):
         window = 256
-        use_synth = self.ecg_source_var.get() == "ECG sintético (función)"
+        use_synth = self._is_value_any_lang(self.ecg_source_var.get(), ["keys.ecg_source.synth"])
         if use_synth:
             samples = self._synthetic_ecg(window)
-            src = "ECG sintético"
+            src = self.tr("keys.ecg_source.synth")
         else:
             if len(self._series_3bx) < window:
                 self.key_status_var.set(
@@ -1963,14 +2488,12 @@ class DeviceBridgeApp:
                 )
                 return
             samples = list(self._series_3bx)[-window:]
-            src = "ECG 3bx en vivo"
+            src = self.tr("keys.ecg_source.live")
 
         key_bytes, entropy_norm, debug_text, _candidates, _best_idx = self._ecg_key_pipeline(samples)
 
         self.key_hex_var.set(key_bytes.hex())
         self.key_entropy_var.set(f"Entropía normalizada: {entropy_norm:.3f}")
-        self._key_seq += 1
-        self._key_last_ts = time.time()
 
         self.keys_details.config(state=tk.NORMAL)
         self.keys_details.delete("1.0", tk.END)
@@ -2012,10 +2535,10 @@ class DeviceBridgeApp:
             src = str(params.get("source_label", "ECG DB"))
         else:
             src_cfg = str(params.get("ecg_source", self.ecg_source_var.get())).strip()
-            use_synth = src_cfg == "ECG sintético (función)"
+            use_synth = self._is_value_any_lang(src_cfg, ["keys.ecg_source.synth"])
             if use_synth:
                 samples = self._synthetic_ecg(n)
-                src = "ECG sintético"
+                src = self.tr("keys.ecg_source.synth")
             else:
                 if len(self._series_3bx) < n:
                     self.key_status_var.set(
@@ -2023,7 +2546,7 @@ class DeviceBridgeApp:
                     )
                     return
                 samples = list(self._series_3bx)[-n:]
-                src = "ECG 3bx en vivo"
+                src = self.tr("keys.ecg_source.live")
 
         min_v = min(samples)
         max_v = max(samples)
@@ -2039,12 +2562,12 @@ class DeviceBridgeApp:
         scan_mode = str(
             params.get(
                 "scan_mode",
-                getattr(self, "analysis_scan_mode_var", tk.StringVar(value="Desplazamiento 1b (máximo)")).get(),
+                getattr(self, "analysis_scan_mode_var", tk.StringVar(value=self.tr("keys.scan.shift1"))).get(),
             )
         )
-        if scan_mode == "No solapado (128b)":
+        if self._is_value_any_lang(scan_mode, ["keys.scan.no_overlap"]):
             stride = 128
-        elif scan_mode == "Desplazamiento 11b":
+        elif self._is_value_any_lang(scan_mode, ["keys.scan.shift11"]):
             stride = 11
         else:
             stride = 1
@@ -2514,14 +3037,14 @@ class DeviceBridgeApp:
 
     def _on_simulate_window_flow(self):
         window = max(64, int(self.window_len_var.get() or 256))
-        use_synth = self.ecg_source_var.get() == "ECG sintético (función)"
+        use_synth = self._is_value_any_lang(self.ecg_source_var.get(), ["keys.ecg_source.synth"])
         if use_synth:
             # Construimos una señal sintética suficientemente larga para
             # obtener varias ventanas, independientemente del tamaño de ventana.
             segments_needed = 8  # hasta 7 flujos i->i+1
             total_len = window + (segments_needed - 1) * max(window // 2, 64)
             samples = self._synthetic_ecg(total_len)
-            src = "ECG sintético"
+            src = self.tr("keys.ecg_source.synth")
         else:
             samples = list(self._series_3bx)
             if len(samples) < 2 * window:
@@ -2530,7 +3053,7 @@ class DeviceBridgeApp:
                     "Selecciona 'ECG sintético (función)' si quieres probar sin señal real."
                 )
                 return
-            src = "ECG 3bx en vivo"
+            src = self.tr("keys.ecg_source.live")
 
         # Usamos sliding windows con solapamiento fijo para que la cantidad
         # de ventanas y claves no dependa tanto del tamaño de ventana.
@@ -2605,7 +3128,7 @@ class DeviceBridgeApp:
                     "best_idx": None,
                     "mixed": False,
                     "active": False,
-                    "live": (src == "ECG 3bx en vivo"),
+                    "live": self._is_value_any_lang(src, ["keys.ecg_source.live"]),
                     "init": True,
                 }
             )
@@ -2659,7 +3182,7 @@ class DeviceBridgeApp:
                     "best_idx": best_idx,
                     "mixed": mix_with_user_key,
                     "active": (i == last_pair_idx),
-                    "live": (src == "ECG 3bx en vivo"),
+                    "live": self._is_value_any_lang(src, ["keys.ecg_source.live"]),
                 }
             )
 
@@ -2813,39 +3336,8 @@ class DeviceBridgeApp:
         if not getattr(self, "auto_flow_var", None) or not self.auto_flow_var.get():
             self._td8_auto_flow_job = None
             return
-        # Cada tick actualizamos la clave final visible (128b) usando el ECG actual.
-        try:
-            n = int(getattr(self, "analysis_window_var", None).get() if hasattr(self, "analysis_window_var") else 2048)
-        except Exception:
-            n = 2048
-        n = max(256, min(n, 8192))
-
-        try:
-            use_synth = getattr(self, "ecg_source_var", None) is not None and self.ecg_source_var.get() == "ECG sintético (función)"
-        except Exception:
-            use_synth = False
-
-        try:
-            samples = self._synthetic_ecg(n) if use_synth else list(self._series_3bx)[-n:]
-            if len(samples) >= 256:
-                key_bytes, ent, _dbg, _cand, _best = self._ecg_key_pipeline(samples)
-                self.key_hex_var.set(key_bytes.hex())
-                self.key_entropy_var.set(f"Entropía: {ent:.3f}")
-                self.key_status_var.set(f"Auto key @2s ({'sintético' if use_synth else '3bx'}) | n={len(samples)}")
-                self._key_seq += 1
-                self._key_last_ts = time.time()
-        except Exception as e:
-            try:
-                self.key_status_var.set(f"Auto key error: {e}")
-            except Exception:
-                pass
-
-        # (Opcional) Reejecutamos la simulación de flujo por ventanas para actualizar gráficos.
-        # Es más pesada, pero mantiene la demo alineada con el modo auto.
-        try:
-            self._on_simulate_window_flow()
-        except Exception:
-            pass
+        # Reejecutamos la simulación con las últimas muestras disponibles.
+        self._on_simulate_window_flow()
 
     def _encrypt_segment_for_plot(self, key_bytes: bytes, seg_plain, window_index: int):
         """
@@ -3025,16 +3517,16 @@ class DeviceBridgeApp:
         elif len(bits) > 128:
             bits = bits[:128]
 
-        if mode_val == "XOR mezcla simple (RdS, CdD)":
+        if mode_val in (I18N["es"].get("keys.comp.xor"), I18N["en"].get("keys.comp.xor")):
             a = int(bits[:64], 2)
             b = int(bits[64:128], 2)
             composed = ((a << 64) ^ b) & ((1 << 128) - 1)
             return composed, "XOR simple entre mitades de 64 bits"
-        if mode_val == "Concat+SHA256 (RdS||CdD)":
+        if mode_val in (I18N["es"].get("keys.comp.concat_sha"), I18N["en"].get("keys.comp.concat_sha")):
             raw = int(bits, 2).to_bytes(16, "big", signed=False)
             digest = hashlib.sha256(raw).digest()
             return int.from_bytes(digest[:16], "big", signed=False), "SHA-256(bitstream128) truncado"
-        if mode_val == "Interleave bits (RdS, CdD)":
+        if mode_val in (I18N["es"].get("keys.comp.interleave"), I18N["en"].get("keys.comp.interleave")):
             a = bits[:64]
             b = bits[64:128]
             inter = []
@@ -3042,7 +3534,7 @@ class DeviceBridgeApp:
                 inter.append(a[i])
                 inter.append(b[i])
             return int("".join(inter), 2), "Interleave entre dos mitades de 64 bits"
-        if mode_val == "RNS parity mix (RdS, CdD)":
+        if mode_val in (I18N["es"].get("keys.comp.rns_parity"), I18N["en"].get("keys.comp.rns_parity")):
             a = int(bits[:64], 2)
             b = int(bits[64:128], 2)
             mixed = ((a << 64) | b) ^ (a ^ b)
@@ -3465,7 +3957,7 @@ class DeviceBridgeApp:
     def _uart_open(self):
         port = self.uart_port_var.get().split(" \u2014 ")[0].strip() or self.uart_port_var.get()
         if not port:
-            self._show_warning("UART", "Selecciona un puerto.")
+            self._show_warning("UART", self.tr("uart.select.port"))
             return
         try:
             baud = int(self.uart_baud_var.get())
@@ -3487,15 +3979,15 @@ class DeviceBridgeApp:
             no_dtr = nucleo is not None and nucleo.get()
             self._serial = SerialHandler(on_data=on_data)
             self._serial.open(port, baud, assert_dtr_rts=not no_dtr)
-            self.uart_status_var.set(f"\u25cf Conectado: {port}")
+            self.uart_status_var.set(self.tr("uart.connected.port", port=port))
             self.uart_close_btn.config(state=tk.NORMAL)
             mode = "ST-Link (sin DTR/RTS forzados)" if no_dtr else "DTR/RTS activos"
             self._uart_rx_zero_streak = 0
             self._uart_zero_diag_done = False
-            self._uart_append_log(f"Puerto abierto: {port} @ {baud} baud — {mode}", None)
+            self._uart_append_log(self.tr("uart.port.opened", port=port, baud=baud, mode=mode), None)
         except Exception as e:
             self._show_error("UART", str(e))
-            self.uart_status_var.set(f"\u25cf Error: {e}")
+            self.uart_status_var.set(self.tr("uart.error", error=e))
 
     def _uart_reopen(self):
         # Reaplicar puerto/baudios actuales sin tocar el cable USB.
@@ -3573,12 +4065,12 @@ class DeviceBridgeApp:
         self._raw17_ir_lp = None
         self._ecg_bp_lp2 = None
         if hasattr(self, "uart_raw17_auto_btn"):
-            self.uart_raw17_auto_btn.config(text="Auto detect RAW17")
+            self.uart_raw17_auto_btn.config(text=self.tr("uart.raw17.auto"))
         if hasattr(self, "uart_raw17_auto300_btn"):
-            self.uart_raw17_auto300_btn.config(text="Auto x300")
-        self.uart_status_var.set("\u25cf Desconectado")
+            self.uart_raw17_auto300_btn.config(text=self.tr("uart.raw17.auto300"))
+        self.uart_status_var.set(self.tr("uart.disconnected"))
         self.uart_close_btn.config(state=tk.DISABLED)
-        self._uart_append_log("Puerto cerrado", None)
+        self._uart_append_log(self.tr("uart.closed"), None)
 
     def _on_uart_parser_changed(self):
         mode_text = self.uart_parser_var.get() if hasattr(self, "uart_parser_var") else "H2T 30B + CRC"
@@ -3617,9 +4109,9 @@ class DeviceBridgeApp:
                     state=(tk.NORMAL if self._parser_mode == "labview_raw17" else tk.DISABLED)
                 )
             if self._parser_mode != "labview_raw17":
-                self.uart_raw17_auto_btn.config(text="Auto detect RAW17")
+                self.uart_raw17_auto_btn.config(text=self.tr("uart.raw17.auto"))
                 if hasattr(self, "uart_raw17_auto300_btn"):
-                    self.uart_raw17_auto300_btn.config(text="Auto x300")
+                    self.uart_raw17_auto300_btn.config(text=self.tr("uart.raw17.auto300"))
         self._uart_append_log(
             f"Parser UART: {self._parser_mode} | raw17_endian={self._raw17_byteorder} | raw17_signed={self._raw17_signed}",
             None,
@@ -3670,9 +4162,9 @@ class DeviceBridgeApp:
             ("little", False): {"score": 0.0, "base_r": None, "base_i": None, "prev_r": None, "prev_i": None},
             ("little", True): {"score": 0.0, "base_r": None, "base_i": None, "prev_r": None, "prev_i": None},
         }
-        self.uart_raw17_auto_btn.config(text="Detectando...", state=tk.DISABLED)
+        self.uart_raw17_auto_btn.config(text=self.tr("uart.detecting"), state=tk.DISABLED)
         if hasattr(self, "uart_raw17_auto300_btn"):
-            self.uart_raw17_auto300_btn.config(text="Detectando...", state=tk.DISABLED)
+            self.uart_raw17_auto300_btn.config(text=self.tr("uart.detecting"), state=tk.DISABLED)
         self._uart_append_log(
             f"Auto RAW17 iniciado ({self._raw17_auto_target} paquetes): probando big/little + signed/unsigned",
             None,
@@ -3718,9 +4210,9 @@ class DeviceBridgeApp:
         self.uart_raw17_bo_var.set(self._raw17_byteorder)
         self.uart_raw17_signed_var.set(self._raw17_signed)
         self._raw17_autodetect = False
-        self.uart_raw17_auto_btn.config(text="Auto detect RAW17", state=tk.NORMAL)
+        self.uart_raw17_auto_btn.config(text=self.tr("uart.raw17.auto"), state=tk.NORMAL)
         if hasattr(self, "uart_raw17_auto300_btn"):
-            self.uart_raw17_auto300_btn.config(text="Auto x300", state=tk.NORMAL)
+            self.uart_raw17_auto300_btn.config(text=self.tr("uart.raw17.auto300"), state=tk.NORMAL)
         self._on_uart_parser_changed()
         self._uart_append_log(
             f"Auto RAW17 completado: bo={self._raw17_byteorder} | signed={self._raw17_signed}",
@@ -3802,7 +4294,7 @@ class DeviceBridgeApp:
             return
 
         while True:
-            packet = self._extract_next_h2t_packet_from(self._uart_rx_buffer, count_crc_errors=True, validate_crc=self._h2t_validate_crc)
+            packet = self._extract_next_h2t_packet()
             if packet is None:
                 break
             self._uart_packets_ok += 1
@@ -3852,7 +4344,7 @@ class DeviceBridgeApp:
         return None
 
     def _extract_next_h2t_packet(self) -> Optional[bytes]:
-        return self._extract_next_h2t_packet_from(self._uart_rx_buffer, count_crc_errors=True, validate_crc=self._h2t_validate_crc)
+        return self._extract_next_h2t_packet_from(self._uart_rx_buffer, count_crc_errors=True)
 
     def _extract_next_raw17_packet(self) -> Optional[bytes]:
         """
@@ -3966,7 +4458,6 @@ class DeviceBridgeApp:
 
     def _process_uart_packet(self, packet: bytes, include_4404: bool = True):
         sensor_type = chr(packet[3])
-        self._last_h2t_sensor_type = sensor_type
         payload = packet[5:29]
         if sensor_type == "3":
             try:
